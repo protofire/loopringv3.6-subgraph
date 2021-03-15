@@ -1,0 +1,31 @@
+type Proxy @entity {
+  id: ID!
+
+  currentImplementation: Exchange
+
+  implementations: [Exchange!]! @derivedFrom(field:"proxy")
+}
+
+type Exchange @entity {
+  "Address of the exchange"
+  id: ID!
+
+  proxy: Proxy!
+
+  tokens: [Token!]! @derivedFrom(field: "exchange")
+}
+
+type Token @entity {
+  id: ID!
+
+  "Exchange implementation active when the token was registered"
+  exchange: Exchange!
+
+  address: Bytes!
+
+  decimals: Int!
+
+  name: String!
+
+  symbol: String!
+}

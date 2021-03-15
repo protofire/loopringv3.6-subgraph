@@ -1,0 +1,44 @@
+specVersion: 0.0.2
+description: Loopring 3.1 subgraph with support for Exchanges metadata, aggregated stake data, Block data, LRC token holders, Loopring Accounts, supported tokens and more!
+repository: https://github.com/protofire/loopringv3-subgraph
+schema:
+  file: ./schema.graphql
+dataSources:
+  - kind: ethereum/contract
+    name: OwnedUpgradabilityProxy
+    network: mainnet
+    source:
+      address: "0x0baba1ad5be3a5c0a66e7ac838a129bf948f1ea4"
+      abi: OwnedUpgradabilityProxy
+      startBlock: 11149814
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.4
+      language: wasm/assemblyscript
+      file: ./src/index.ts
+      entities:
+        - Proxy
+        - Exchange
+        - Token
+      abis:
+        - name: OwnedUpgradabilityProxy
+          file: ./abis/OwnedUpgradabilityProxy.json
+        - name: ERC20
+          file: ./abis/ERC20.json
+      eventHandlers:
+        - event: Upgraded(indexed address)
+          handler: handleUpgraded
+        - event: TokenRegistered(address,uint16)
+          handler: handleTokenRegistered
+  # - BlockSubmitted(indexed uint256,bytes32,bytes32)
+  # - DepositRequested(address,address,address,uint16,uint96)
+  # - ExchangeCloned(address,address,bytes32)
+  # - ForcedWithdrawalRequested(address,address,uint32)
+  # - OwnershipTransferred(indexed address,indexed address)
+  # - ProtocolFeesUpdated(uint8,uint8,uint8,uint8)
+  # - Shutdown(uint256)
+  # - TokenRegistered(address,uint16)
+  # - TransactionApproved(address,bytes32)
+  # - WithdrawalCompleted(uint8,address,address,address,uint256)
+  # - WithdrawalFailed(uint8,address,address,address,uint256)
+  # - WithdrawalModeActivated(uint256)
