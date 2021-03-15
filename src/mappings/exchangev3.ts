@@ -1,7 +1,7 @@
 import { log, BigInt } from "@graphprotocol/graph-ts";
 import {
   TokenRegistered
-} from "../../generated/templates/ExchangeV36/ExchangeV36";
+} from "../../generated/OwnedUpgradabilityProxy/OwnedUpgradabilityProxy";
 import {
   getOrCreateToken,
   getProxy

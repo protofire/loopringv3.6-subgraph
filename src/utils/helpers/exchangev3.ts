@@ -2,7 +2,7 @@ import {
   Token,
   Exchange
 } from "../../../generated/schema";
-import { ERC20 } from "../../../generated/templates/ERC20/ERC20";
+import { ERC20 } from "../../../generated/OwnedUpgradabilityProxy/ERC20";
 import { Address } from "@graphprotocol/graph-ts";
 import { DEFAULT_DECIMALS } from "../../utils/decimals";
 import { BIGINT_ZERO, BIGDECIMAL_ZERO } from "../../utils/constants";
