@@ -1,6 +1,5 @@
 specVersion: 0.0.2
-description: Loopring 3.1 subgraph with support for Exchanges metadata, aggregated stake data, Block data, LRC token holders, Loopring Accounts, supported tokens and more!
-repository: https://github.com/protofire/loopringv3-subgraph
+description: Loopring 3.6 subgraph. Currently work in progress.
 schema:
   file: ./schema.graphql
 dataSources:
