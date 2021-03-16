@@ -4,6 +4,8 @@ type Proxy @entity {
   currentImplementation: Exchange
 
   implementations: [Exchange!]! @derivedFrom(field:"proxy")
+
+  blockCount: BigInt!
 }
 
 type Exchange @entity {
@@ -28,4 +30,16 @@ type Token @entity {
   name: String!
 
   symbol: String!
+}
+
+type Block @entity {
+  id: ID!
+
+  blockType: Int!
+  blockSize: Int!
+  blockVersion: Int!
+  data: Bytes!
+  proof: [BigInt!]!
+  storeBlockInfoOnchain: Boolean!
+  offchainData: Bytes!
 }

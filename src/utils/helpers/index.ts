@@ -1,6 +1,7 @@
 export {
   getOrCreateToken,
-  getToken
+  getToken,
+  getOrCreateBlock
 } from "./exchangev3";
 
 export {

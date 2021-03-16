@@ -1,12 +1,8 @@
-import {
-  Token,
-  Exchange
-} from "../../../generated/schema";
+import { Token, Exchange, Block } from "../../../generated/schema";
 import { ERC20 } from "../../../generated/OwnedUpgradabilityProxy/ERC20";
 import { Address } from "@graphprotocol/graph-ts";
 import { DEFAULT_DECIMALS } from "../../utils/decimals";
 import { BIGINT_ZERO, BIGDECIMAL_ZERO } from "../../utils/constants";
-
 
 export function getOrCreateToken(
   tokenId: String,
@@ -32,6 +28,16 @@ export function getOrCreateToken(
   }
 
   return token as Token;
+}
+
+export function getOrCreateBlock(id: String): Block {
+  let block = Block.load(id);
+
+  if (block == null) {
+    block = new Block(id);
+  }
+
+  return block as Block;
 }
 
 export function getToken(tokenId: String): Token | null {
