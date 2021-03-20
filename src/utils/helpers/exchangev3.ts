@@ -2,7 +2,11 @@ import { Token, Exchange, Block } from "../../../generated/schema";
 import { ERC20 } from "../../../generated/OwnedUpgradabilityProxy/ERC20";
 import { Address } from "@graphprotocol/graph-ts";
 import { DEFAULT_DECIMALS } from "../../utils/decimals";
-import { BIGINT_ZERO, BIGDECIMAL_ZERO } from "../../utils/constants";
+import {
+  BIGINT_ZERO,
+  BIGDECIMAL_ZERO,
+  ZERO_ADDRESS
+} from "../../utils/constants";
 
 export function getOrCreateToken(
   tokenId: String,
@@ -14,17 +18,23 @@ export function getOrCreateToken(
     token = new Token(tokenId);
     token.address = tokenAddress;
 
-    let erc20Token = ERC20.bind(tokenAddress);
+    if (tokenId != ZERO_ADDRESS) {
+      let erc20Token = ERC20.bind(tokenAddress);
 
-    let tokenDecimals = erc20Token.try_decimals();
-    let tokenName = erc20Token.try_name();
-    let tokenSymbol = erc20Token.try_symbol();
+      let tokenDecimals = erc20Token.try_decimals();
+      let tokenName = erc20Token.try_name();
+      let tokenSymbol = erc20Token.try_symbol();
 
-    token.decimals = !tokenDecimals.reverted
-      ? tokenDecimals.value
-      : DEFAULT_DECIMALS;
-    token.name = !tokenName.reverted ? tokenName.value : "";
-    token.symbol = !tokenSymbol.reverted ? tokenSymbol.value : "";
+      token.decimals = !tokenDecimals.reverted
+        ? tokenDecimals.value
+        : DEFAULT_DECIMALS;
+      token.name = !tokenName.reverted ? tokenName.value : "";
+      token.symbol = !tokenSymbol.reverted ? tokenSymbol.value : "";
+    } else {
+      token.decimals = 18;
+      token.name = "Ether";
+      token.symbol = "ETH";
+    }
   }
 
   return token as Token;

@@ -38,7 +38,7 @@ type Block @entity {
   blockType: Int!
   blockSize: Int!
   blockVersion: Int!
-  data: Bytes!
+  data: String!
   proof: [BigInt!]!
   storeBlockInfoOnchain: Boolean!
   offchainData: Bytes!
