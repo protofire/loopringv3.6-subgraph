@@ -35,6 +35,21 @@ type Token @entity {
 type Block @entity {
   id: ID!
 
+  operator: String!
+
+  txHash: String!
+
+  gasUsed: BigInt!
+
+  gasPrice: BigInt!
+
+  height: BigInt!
+
+  timestamp: BigInt!
+
+  blockHash: String!
+
+  # Raw block data
   blockType: Int!
   blockSize: Int!
   blockVersion: Int!

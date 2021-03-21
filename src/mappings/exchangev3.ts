@@ -23,9 +23,21 @@ export function handleSubmitBlocksV1(call: SubmitBlocksCall): void {
   let blockArray = call.inputs.blocks;
 
   for (let i = 0; i < blockArray.length; i++) {
+    proxy.blockCount = proxy.blockCount.plus(BIGINT_ONE);
+
     let blockData = blockArray[i];
     let block = getOrCreateBlock(proxy.blockCount.toString());
 
+    // metadata
+    block.operator = call.transaction.from.toHexString();
+    block.txHash = call.transaction.hash.toHexString();
+    block.gasUsed = call.transaction.gasUsed;
+    block.gasPrice = call.transaction.gasPrice;
+    block.height = call.block.number;
+    block.timestamp = call.block.timestamp;
+    block.blockHash = call.block.hash.toHexString();
+
+    // raw data except auxiliary data
     block.blockType = blockData.blockType;
     block.blockSize = blockData.blockSize;
     block.blockVersion = blockData.blockVersion;
@@ -35,7 +47,6 @@ export function handleSubmitBlocksV1(call: SubmitBlocksCall): void {
     block.offchainData = blockData.offchainData;
 
     block.save();
-    proxy.blockCount = proxy.blockCount.plus(BIGINT_ONE);
   }
 
   proxy.save();
@@ -49,6 +60,16 @@ export function handleSubmitBlocksV2(call: SubmitBlocks1Call): void {
     let blockData = blockArray[i];
     let block = getOrCreateBlock(proxy.blockCount.toString());
 
+    // metadata
+    block.operator = call.transaction.from.toHexString();
+    block.txHash = call.transaction.hash.toHexString();
+    block.gasUsed = call.transaction.gasUsed;
+    block.gasPrice = call.transaction.gasPrice;
+    block.height = call.block.number;
+    block.timestamp = call.block.timestamp;
+    block.blockHash = call.block.hash.toHexString();
+
+    // raw data except auxiliary data
     block.blockType = blockData.blockType;
     block.blockSize = blockData.blockSize;
     block.blockVersion = blockData.blockVersion;
