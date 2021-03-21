@@ -2,9 +2,15 @@ import { log, BigInt } from "@graphprotocol/graph-ts";
 import {
   TokenRegistered,
   SubmitBlocksCall,
-  SubmitBlocks1Call,
+  SubmitBlocks1Call
 } from "../../generated/OwnedUpgradabilityProxy/OwnedUpgradabilityProxy";
-import { getOrCreateToken, getProxy, getOrCreateBlock } from "../utils/helpers";
+import { Block } from "../../generated/schema";
+import {
+  getOrCreateToken,
+  getProxy,
+  getOrCreateBlock,
+  processBlockData
+} from "../utils/helpers";
 import { BIGINT_ZERO, BIGINT_ONE } from "../utils/constants";
 import { DEFAULT_DECIMALS, toDecimal } from "../utils/decimals";
 
@@ -46,6 +52,8 @@ export function handleSubmitBlocksV1(call: SubmitBlocksCall): void {
     block.storeBlockInfoOnchain = blockData.storeBlockInfoOnchain;
     block.offchainData = blockData.offchainData;
 
+    block = processBlockData(block as Block);
+
     block.save();
   }
 
@@ -57,6 +65,8 @@ export function handleSubmitBlocksV2(call: SubmitBlocks1Call): void {
   let blockArray = call.inputs.blocks;
 
   for (let i = 0; i < blockArray.length; i++) {
+    proxy.blockCount = proxy.blockCount.plus(BIGINT_ONE);
+
     let blockData = blockArray[i];
     let block = getOrCreateBlock(proxy.blockCount.toString());
 
@@ -78,8 +88,9 @@ export function handleSubmitBlocksV2(call: SubmitBlocks1Call): void {
     block.storeBlockInfoOnchain = blockData.storeBlockInfoOnchain;
     block.offchainData = blockData.offchainData;
 
+    block = processBlockData(block as Block);
+
     block.save();
-    proxy.blockCount = proxy.blockCount.plus(BIGINT_ONE);
   }
 
   proxy.save();

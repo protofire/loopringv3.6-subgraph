@@ -57,4 +57,20 @@ type Block @entity {
   proof: [BigInt!]!
   storeBlockInfoOnchain: Boolean!
   offchainData: Bytes!
+
+  # Parsed data from block
+  protocolFeeTakerBips: String!
+  protocolFeeMakerBips: String!
+  numConditionalTransactions: String!
+  operatorAccountID: String!
+
+  transactions: [Transaction!]! @derivedFrom(field:"block")
+}
+
+type Transaction @entity {
+  id: ID!
+
+  data: String!
+
+  block: Block!
 }
