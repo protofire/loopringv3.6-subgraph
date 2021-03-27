@@ -1,10 +1,15 @@
 export {
-  getOrCreateToken,
-  getToken,
   getOrCreateBlock,
-  getOrCreateTransaction,
   processBlockData,
-  extractData
-} from "./exchangev3";
+} from "./block";
+
+export {
+  processTransactionData
+} from "./transaction";
+
+export {
+  getOrCreateToken,
+  getToken
+} from "./token";
 
 export { getProxy, getOrCreateExchange } from "./upgradabilityProxy";

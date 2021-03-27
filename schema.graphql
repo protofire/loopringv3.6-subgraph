@@ -67,7 +67,63 @@ type Block @entity {
   transactions: [Transaction!]! @derivedFrom(field:"block")
 }
 
-type Transaction @entity {
+interface Transaction {
+  id: ID!
+
+  data: String!
+
+  block: Block!
+}
+
+type Deposit implements Transaction @entity {
+  id: ID!
+
+  data: String!
+
+  block: Block!
+}
+
+type SpotTrade implements Transaction @entity {
+  id: ID!
+
+  data: String!
+
+  block: Block!
+}
+
+type Transfer implements Transaction @entity {
+  id: ID!
+
+  data: String!
+
+  block: Block!
+}
+
+type Withdrawal implements Transaction @entity {
+  id: ID!
+
+  data: String!
+
+  block: Block!
+}
+
+type AccountUpdate implements Transaction @entity {
+  id: ID!
+
+  data: String!
+
+  block: Block!
+}
+
+type AmmUpdate implements Transaction @entity {
+  id: ID!
+
+  data: String!
+
+  block: Block!
+}
+
+type SignatureVerification implements Transaction @entity {
   id: ID!
 
   data: String!

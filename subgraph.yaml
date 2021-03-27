@@ -1,5 +1,6 @@
 specVersion: 0.0.2
 description: Loopring 3.6 subgraph. Currently work in progress.
+repository: https://github.com/protofire/loopringv3.6-subgraph
 schema:
   file: ./schema.graphql
 dataSources:
