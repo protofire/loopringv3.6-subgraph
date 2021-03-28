@@ -1,4 +1,5 @@
-import { SignatureVerification } from "../../../../generated/schema";
+import { SignatureVerification, Block } from "../../../../generated/schema";
+import { extractData, extractBigInt, extractInt } from "../data";
 
 // interface SignatureVerification {
 //   owner?: string;
@@ -34,9 +35,19 @@ import { SignatureVerification } from "../../../../generated/schema";
 //   }
 // }
 
-export function processSignatureVerification(id: String, data: String, blockId: String): void {
+export function processSignatureVerification(id: String, data: String, block: Block): void {
   let transaction = new SignatureVerification(id);
   transaction.data = data;
-  transaction.block = blockId;
+  transaction.block = block.id;
+
+  let offset = 1;
+
+  transaction.owner = extractData(data, offset, 20);
+  offset += 20;
+  transaction.accountID = extractInt(data, offset, 4);
+  offset += 4;
+  transaction.verificationData = extractData(data, offset, 32);
+  offset += 32;
+
   transaction.save();
 }

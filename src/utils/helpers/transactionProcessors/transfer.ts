@@ -1,4 +1,4 @@
-import { Transfer } from "../../../../generated/schema";
+import { Transfer, Block } from "../../../../generated/schema";
 
 // interface Transfer {
 //   accountFromID?: number;
@@ -86,9 +86,9 @@ import { Transfer } from "../../../../generated/schema";
 //   }
 // }
 
-export function processTransfer(id: String, data: String, blockId: String): void {
+export function processTransfer(id: String, data: String, block: Block): void {
   let transaction = new Transfer(id);
   transaction.data = data;
-  transaction.block = blockId;
+  transaction.block = block.id;
   transaction.save();
 }

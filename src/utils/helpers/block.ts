@@ -52,7 +52,7 @@ export function processBlockData(block: Block): Block {
 
     // Refactor to use methods from transaction helper
     let txId = block.id.concat("-").concat(BigInt.fromI32(i).toString())
-    processTransactionData(txId, txData, block.id)
+    processTransactionData(txId, txData, block)
   }
 
   //   export enum TransactionType {

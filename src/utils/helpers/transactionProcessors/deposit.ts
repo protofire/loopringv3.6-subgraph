@@ -1,4 +1,5 @@
-import { Deposit } from "../../../../generated/schema";
+import { Deposit, Block } from "../../../../generated/schema";
+import { extractData, extractBigInt, extractInt } from "../data";
 
 // interface Deposit {
 //   to?: string;
@@ -45,9 +46,21 @@ import { Deposit } from "../../../../generated/schema";
 //   }
 // }
 
-export function processDeposit(id: String, data: String, blockId: String): void {
+export function processDeposit(id: String, data: String, block: Block): void {
   let transaction = new Deposit(id);
   transaction.data = data;
-  transaction.block = blockId;
+  transaction.block = block.id;
+
+  let offset = 1; // First byte is tx type
+
+  transaction.to = extractData(data, offset, 20);
+  offset += 20;
+  transaction.toAccountID = extractInt(data, offset, 4);
+  offset += 4;
+  transaction.tokenID = extractInt(data, offset, 2);
+  offset += 2;
+  transaction.amount = extractBigInt(data, offset, 12);
+  offset += 12;
+
   transaction.save();
 }

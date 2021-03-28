@@ -25,25 +25,25 @@ import {
   processSignatureVerification
 } from './transactionProcessors'
 
-export function processTransactionData(id: String, data: String, blockId: String): void {
+export function processTransactionData(id: String, data: String, block: Block): void {
   let txType = getTransactionTypeFromData(data);
 
   if(txType == TRANSACTION_NOOP) {
     // For now do nothing. Maybe we want to track the amount of No-op in the future?
   } else if(txType == TRANSACTION_DEPOSIT) {
-    processDeposit(id, data, blockId)
+    processDeposit(id, data, block)
   } else if(txType == TRANSACTION_SPOT_TRADE) {
-    processSpotTrade(id, data, blockId)
+    processSpotTrade(id, data, block)
   } else if(txType == TRANSACTION_TRANSFER) {
-    processTransfer(id, data, blockId)
+    processTransfer(id, data, block)
   } else if(txType == TRANSACTION_WITHDRAWAL) {
-    processWithdrawal(id, data, blockId)
+    processWithdrawal(id, data, block)
   } else if(txType == TRANSACTION_ACCOUNT_UPDATE) {
-    processAccountUpdate(id, data, blockId)
+    processAccountUpdate(id, data, block)
   } else if(txType == TRANSACTION_AMM_UPDATE) {
-    processAmmUpdate(id, data, blockId)
+    processAmmUpdate(id, data, block)
   } else if(txType == TRANSACTION_SIGNATURE_VERIFICATION) {
-    processSignatureVerification(id, data, blockId)
+    processSignatureVerification(id, data, block)
   }
 }
 

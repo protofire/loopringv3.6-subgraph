@@ -1,4 +1,4 @@
-import { SpotTrade } from "../../../../generated/schema";
+import { SpotTrade, Block } from "../../../../generated/schema";
 
 // interface SettlementValues {
 //   fillSA: BN;
@@ -197,9 +197,9 @@ import { SpotTrade } from "../../../../generated/schema";
 //   }
 // }
 
-export function processSpotTrade(id: String, data: String, blockId: String): void {
+export function processSpotTrade(id: String, data: String, block: Block): void {
   let transaction = new SpotTrade(id);
   transaction.data = data;
-  transaction.block = blockId;
+  transaction.block = block.id;
   transaction.save();
 }

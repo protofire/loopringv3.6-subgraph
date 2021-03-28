@@ -1,4 +1,5 @@
-import { AmmUpdate } from "../../../../generated/schema";
+import { AmmUpdate, Block } from "../../../../generated/schema";
+import { extractData, extractBigInt, extractInt } from "../data";
 
 // interface AmmUpdate {
 //   owner?: string;
@@ -55,9 +56,27 @@ import { AmmUpdate } from "../../../../generated/schema";
 //   }
 // }
 
-export function processAmmUpdate(id: String, data: String, blockId: String): void {
+export function processAmmUpdate(id: String, data: String, block: Block): void {
   let transaction = new AmmUpdate(id);
   transaction.data = data;
-  transaction.block = blockId;
+  transaction.block = block.id;
+
+  let offset = 1;
+
+  transaction.owner = extractData(data, offset, 20);
+  offset += 20;
+  transaction.accountID = extractInt(data, offset, 4);
+  offset += 4;
+  transaction.tokenID = extractInt(data, offset, 2);
+  offset += 2;
+  transaction.feeBips = extractInt(data, offset, 1);
+  offset += 1;
+  transaction.tokenWeight = extractBigInt(data, offset, 12);
+  offset += 12;
+  transaction.nonce = extractInt(data, offset, 4);
+  offset += 4;
+  transaction.balance = extractBigInt(data, offset, 12);
+  offset += 12;
+
   transaction.save();
 }

@@ -1,10 +1,14 @@
 type Proxy @entity {
+  "Proxy ID is always '0'. There's only"
   id: ID!
 
+  "Current implementation is represented by a link to the current Exchange entity"
   currentImplementation: Exchange
 
+  "List of all historical Exchange entities (implementations)"
   implementations: [Exchange!]! @derivedFrom(field:"proxy")
 
+  "Total amount of block processed"
   blockCount: BigInt!
 }
 
@@ -14,6 +18,7 @@ type Exchange @entity {
 
   proxy: Proxy!
 
+  "List of all tokens supported during the time this Exchange was the current implementation"
   tokens: [Token!]! @derivedFrom(field: "exchange")
 }
 
@@ -81,6 +86,11 @@ type Deposit implements Transaction @entity {
   data: String!
 
   block: Block!
+
+  to: String! # Not sure what this represents yet
+  toAccountID: Int! # Should link to Account entity in the future
+  tokenID: Int! # Should link to Token entity
+  amount: BigInt!
 }
 
 type SpotTrade implements Transaction @entity {
@@ -113,6 +123,15 @@ type AccountUpdate implements Transaction @entity {
   data: String!
 
   block: Block!
+
+  updateType: Int!
+  owner: String!
+  accountID: Int!
+  feeTokenID: Int!
+  fee: Int!
+  publicKey: String!
+  validUntil: Int!
+  nonce: Int!
 }
 
 type AmmUpdate implements Transaction @entity {
@@ -121,6 +140,14 @@ type AmmUpdate implements Transaction @entity {
   data: String!
 
   block: Block!
+
+  owner: String!
+  accountID: Int!
+  tokenID: Int!
+  feeBips: Int!
+  tokenWeight: BigInt!
+  nonce: Int!
+  balance: BigInt!
 }
 
 type SignatureVerification implements Transaction @entity {
@@ -129,4 +156,8 @@ type SignatureVerification implements Transaction @entity {
   data: String!
 
   block: Block!
+
+  owner: String!
+  accountID: Int!
+  verificationData: String!
 }

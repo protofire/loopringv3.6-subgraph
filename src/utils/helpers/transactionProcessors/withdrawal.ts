@@ -1,4 +1,4 @@
-import { Withdrawal } from "../../../../generated/schema";
+import { Withdrawal, Block } from "../../../../generated/schema";
 
 // interface Withdrawal {
 //   type?: number;
@@ -78,9 +78,9 @@ import { Withdrawal } from "../../../../generated/schema";
 //   }
 // }
 
-export function processWithdrawal(id: String, data: String, blockId: String): void {
+export function processWithdrawal(id: String, data: String, block: Block): void {
   let transaction = new Withdrawal(id);
   transaction.data = data;
-  transaction.block = blockId;
+  transaction.block = block.id;
   transaction.save();
 }
