@@ -99,6 +99,22 @@ type SpotTrade implements Transaction @entity {
   data: String!
 
   block: Block!
+
+
+  storageIdA: Int!
+  storageIdB: Int!
+
+  accountIdA: Int!
+  accountIdB: Int!
+
+  tokenA: Int!
+  tokenB: Int!
+
+  fFillSA: Int!
+  fFillSB: Int!
+
+  orderDataA: Int!
+  orderDataB: Int!
 }
 
 type Transfer implements Transaction @entity {
@@ -107,6 +123,18 @@ type Transfer implements Transaction @entity {
   data: String!
 
   block: Block!
+
+  type: Int!
+  accountFromID: Int!
+  accountToID: Int!
+  tokenID: Int!
+  amount: Int!
+  feeTokenID: Int!
+  fee: Int!
+  validUntil: Int!
+  storageID: Int!
+  from: String!
+  to: String!
 }
 
 type Withdrawal implements Transaction @entity {
@@ -115,6 +143,16 @@ type Withdrawal implements Transaction @entity {
   data: String!
 
   block: Block!
+
+  type: Int!
+  from: String!
+  fromAccountID: Int!
+  tokenID: Int!
+  amount: BigInt!
+  feeTokenID: Int!
+  fee: Int!
+  onchainDataHash: String!
+  storageID: Int!
 }
 
 type AccountUpdate implements Transaction @entity {
@@ -130,7 +168,6 @@ type AccountUpdate implements Transaction @entity {
   feeTokenID: Int!
   fee: Int!
   publicKey: String!
-  validUntil: Int!
   nonce: Int!
 }
 

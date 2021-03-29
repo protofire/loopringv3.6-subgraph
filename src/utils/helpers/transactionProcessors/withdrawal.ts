@@ -1,4 +1,5 @@
 import { Withdrawal, Block } from "../../../../generated/schema";
+import { extractData, extractBigInt, extractInt } from "../data";
 
 // interface Withdrawal {
 //   type?: number;
@@ -82,5 +83,27 @@ export function processWithdrawal(id: String, data: String, block: Block): void 
   let transaction = new Withdrawal(id);
   transaction.data = data;
   transaction.block = block.id;
+
+  let offset = 1;
+
+  transaction.type = extractInt(data, offset, 1);
+  offset += 1;
+  transaction.from = extractData(data, offset, 20);
+  offset += 20;
+  transaction.fromAccountID = extractInt(data, offset, 4);
+  offset += 4;
+  transaction.tokenID = extractInt(data, offset, 2);
+  offset += 2;
+  transaction.amount = extractBigInt(data, offset, 12);
+  offset += 12;
+  transaction.feeTokenID = extractInt(data, offset, 2);
+  offset += 2;
+  transaction.fee = extractInt(data, offset, 2)
+  offset += 2;
+  transaction.storageID = extractInt(data, offset, 4);
+  offset += 4;
+  transaction.onchainDataHash = extractData(data, offset, 20);
+  offset += 20;
+
   transaction.save();
 }

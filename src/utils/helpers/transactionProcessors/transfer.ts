@@ -1,4 +1,5 @@
 import { Transfer, Block } from "../../../../generated/schema";
+import { extractData, extractBigInt, extractInt } from "../data";
 
 // interface Transfer {
 //   accountFromID?: number;
@@ -90,5 +91,31 @@ export function processTransfer(id: String, data: String, block: Block): void {
   let transaction = new Transfer(id);
   transaction.data = data;
   transaction.block = block.id;
+
+  let offset = 1;
+
+  // Check that this is a conditional update
+  transaction.type = extractInt(data, offset, 1);
+  offset += 1;
+
+  transaction.accountFromID = extractInt(data, offset, 4);
+  offset += 4;
+  transaction.accountToID = extractInt(data, offset, 4);
+  offset += 4;
+  transaction.tokenID = extractInt(data, offset, 2);
+  offset += 2;
+  transaction.amount = extractInt(data, offset, 3);
+  offset += 3;
+  transaction.feeTokenID = extractInt(data, offset, 2);
+  offset += 2;
+  transaction.fee = extractInt(data, offset, 2);
+  offset += 2;
+  transaction.storageID = extractInt(data, offset, 4);
+  offset += 4;
+  transaction.to = extractData(data, offset, 20);;
+  offset += 20;
+  transaction.from = extractData(data, offset, 20);;
+  offset += 20;
+
   transaction.save();
 }

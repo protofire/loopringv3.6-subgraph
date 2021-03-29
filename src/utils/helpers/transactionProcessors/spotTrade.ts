@@ -1,4 +1,5 @@
 import { SpotTrade, Block } from "../../../../generated/schema";
+import { extractData, extractBigInt, extractInt } from "../data";
 
 // interface SettlementValues {
 //   fillSA: BN;
@@ -201,5 +202,38 @@ export function processSpotTrade(id: String, data: String, block: Block): void {
   let transaction = new SpotTrade(id);
   transaction.data = data;
   transaction.block = block.id;
+
+  let offset = 1;
+
+  // Storage IDs
+  transaction.storageIdA = extractInt(data, offset, 4);
+  offset += 4;
+  transaction.storageIdB = extractInt(data, offset, 4);
+  offset += 4;
+
+  // Accounts
+  transaction.accountIdA = extractInt(data, offset, 4);
+  offset += 4;
+  transaction.accountIdB = extractInt(data, offset, 4);
+  offset += 4;
+
+  // Tokens
+  transaction.tokenA = extractInt(data, offset, 2);
+  offset += 2;
+  transaction.tokenB = extractInt(data, offset, 2);
+  offset += 2;
+
+  // Fills
+  transaction.fFillSA = extractInt(data, offset, 3);
+  offset += 3;
+  transaction.fFillSB = extractInt(data, offset, 3);
+  offset += 3;
+
+  // Order data
+  transaction.orderDataA = extractInt(data, offset, 1);
+  offset += 1;
+  transaction.orderDataB = extractInt(data, offset, 1);
+  offset += 1;
+
   transaction.save();
 }
