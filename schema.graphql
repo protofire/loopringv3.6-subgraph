@@ -131,7 +131,6 @@ type Transfer implements Transaction @entity {
   amount: Int!
   feeTokenID: Int!
   fee: Int!
-  validUntil: Int!
   storageID: Int!
   from: String!
   to: String!
