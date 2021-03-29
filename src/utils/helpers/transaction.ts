@@ -56,11 +56,11 @@ function getTransactionTypeFromData(data: String): String {
   } else if (typeString == "01") {
     response = TRANSACTION_DEPOSIT;
   } else if (typeString == "02") {
-    response = TRANSACTION_SPOT_TRADE;
+    response = TRANSACTION_WITHDRAWAL;
   } else if (typeString == "03") {
     response = TRANSACTION_TRANSFER;
   } else if (typeString == "04") {
-    response = TRANSACTION_WITHDRAWAL;
+    response = TRANSACTION_SPOT_TRADE;
   } else if (typeString == "05") {
     response = TRANSACTION_ACCOUNT_UPDATE;
   } else if (typeString == "06") {

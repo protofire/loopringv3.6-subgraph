@@ -72,7 +72,15 @@ type Block @entity {
   transactions: [Transaction!]! @derivedFrom(field:"block")
 }
 
+type Account @entity {
+  "Internal ID used in the L2 transactions"
+  id: ID!
+
+  address: Bytes!
+}
+
 interface Transaction {
+  "All transactions IDs follow the same pattern: <BLOCK ID>-<TX INDEX>"
   id: ID!
 
   data: String!
