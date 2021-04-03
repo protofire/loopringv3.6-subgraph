@@ -1,5 +1,7 @@
-import { SpotTrade, Block } from "../../../../generated/schema";
+import { SpotTrade, Block, Token } from "../../../../generated/schema";
+import { BigInt, Address, Bytes } from "@graphprotocol/graph-ts";
 import { extractData, extractBigInt, extractInt } from "../data";
+import { getOrCreateAccount, getToken } from "../index";
 
 // interface SettlementValues {
 //   fillSA: BN;
@@ -218,9 +220,9 @@ export function processSpotTrade(id: String, data: String, block: Block): void {
   offset += 4;
 
   // Tokens
-  transaction.tokenA = extractInt(data, offset, 2);
+  transaction.tokenIDA = extractInt(data, offset, 2);
   offset += 2;
-  transaction.tokenB = extractInt(data, offset, 2);
+  transaction.tokenIDB = extractInt(data, offset, 2);
   offset += 2;
 
   // Fills
@@ -235,5 +237,18 @@ export function processSpotTrade(id: String, data: String, block: Block): void {
   transaction.orderDataB = extractInt(data, offset, 1);
   offset += 1;
 
+  let accountA = getOrCreateAccount(BigInt.fromI32(transaction.accountIdA).toString())
+  let accountB = getOrCreateAccount(BigInt.fromI32(transaction.accountIdB).toString())
+
+  let tokenA = getToken(BigInt.fromI32(transaction.tokenIDA).toString()) as Token
+  let tokenB = getToken(BigInt.fromI32(transaction.tokenIDB).toString()) as Token
+
+  transaction.accountA = accountA.id;
+  transaction.accountB = accountB.id;
+  transaction.tokenA = tokenA.id;
+  transaction.tokenB = tokenB.id;
+
+  accountA.save();
+  accountB.save();
   transaction.save();
 }

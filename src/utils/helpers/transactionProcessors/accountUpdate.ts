@@ -1,5 +1,7 @@
-import { AccountUpdate, Block } from "../../../../generated/schema";
+import { AccountUpdate, Block, Token } from "../../../../generated/schema";
+import { BigInt, Address, Bytes } from "@graphprotocol/graph-ts";
 import { extractData, extractBigInt, extractInt } from "../data";
+import { getOrCreateAccount, getToken } from "../index";
 
 // interface AccountUpdate {
 //   owner?: string;
@@ -92,5 +94,15 @@ export function processAccountUpdate(id: String, data: String, block: Block): vo
   transaction.nonce = extractInt(data, offset, 4);
   offset += 4;
 
+  let account = getOrCreateAccount(BigInt.fromI32(transaction.accountID).toString())
+  account.address = Address.fromString(transaction.owner) as Bytes
+  // TO-DO Update the rest of the account parameters here.
+
+  let feeToken = getToken(BigInt.fromI32(transaction.feeTokenID).toString()) as Token
+
+  transaction.account = account.id;
+  transaction.feeToken = feeToken.id;
+
+  account.save();
   transaction.save();
 }

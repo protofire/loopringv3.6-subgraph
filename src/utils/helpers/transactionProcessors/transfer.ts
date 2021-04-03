@@ -119,6 +119,8 @@ export function processTransfer(id: String, data: String, block: Block): void {
   transaction.from = extractData(data, offset, 20);;
   offset += 20;
 
+  // Check whether accountID > 10.000 to differentiate transfers between accounts from Pool liquidity additions
+
   let fromAccount = getOrCreateAccount(BigInt.fromI32(transaction.accountFromID).toString())
   fromAccount.address = Address.fromString(transaction.from) as Bytes
 

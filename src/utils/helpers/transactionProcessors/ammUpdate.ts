@@ -1,5 +1,7 @@
-import { AmmUpdate, Block } from "../../../../generated/schema";
+import { AmmUpdate, Block, Token } from "../../../../generated/schema";
+import { BigInt, Address, Bytes } from "@graphprotocol/graph-ts";
 import { extractData, extractBigInt, extractInt } from "../data";
+import { getOrCreatePool, getToken } from "../index";
 
 // interface AmmUpdate {
 //   owner?: string;
@@ -78,5 +80,12 @@ export function processAmmUpdate(id: String, data: String, block: Block): void {
   transaction.balance = extractBigInt(data, offset, 12);
   offset += 12;
 
+  let pool = getOrCreatePool(BigInt.fromI32(transaction.accountID).toString())
+  pool.owner = Address.fromString(transaction.owner) as Bytes
+  // TO-DO Update the rest of the pool parameters here.
+
+  transaction.pool = pool.id;
+
+  pool.save();
   transaction.save();
 }

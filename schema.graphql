@@ -82,6 +82,13 @@ type Account @entity {
   address: Bytes!
 }
 
+type Pool @entity {
+  "Internal ID used in the L2 transactions"
+  id: ID!
+
+  owner: Bytes!
+}
+
 interface Transaction {
   "All transactions IDs follow the same pattern: <BLOCK ID>-<TX INDEX>"
   id: ID!
@@ -171,6 +178,12 @@ type SpotTrade implements Transaction @entity {
 
   block: Block!
 
+  accountA: Account!
+  accountB: Account!
+
+  tokenA: Token!
+  tokenB: Token!
+
   # Raw data parsed from the L2 data
   storageIdA: Int!
   storageIdB: Int!
@@ -178,8 +191,8 @@ type SpotTrade implements Transaction @entity {
   accountIdA: Int!
   accountIdB: Int!
 
-  tokenA: Int!
-  tokenB: Int!
+  tokenIDA: Int!
+  tokenIDB: Int!
 
   fFillSA: Int!
   fFillSB: Int!
@@ -194,6 +207,10 @@ type AccountUpdate implements Transaction @entity {
   data: String!
 
   block: Block!
+
+  account: Account!
+
+  feeToken: Token!
 
   # Raw data parsed from the L2 data
   updateType: Int!
@@ -212,6 +229,8 @@ type AmmUpdate implements Transaction @entity {
 
   block: Block!
 
+  pool: Pool!
+
   # Raw data parsed from the L2 data
   owner: String!
   accountID: Int!
@@ -228,6 +247,8 @@ type SignatureVerification implements Transaction @entity {
   data: String!
 
   block: Block!
+
+  account: Account!
 
   # Raw data parsed from the L2 data
   owner: String!
