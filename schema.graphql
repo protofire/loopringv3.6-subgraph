@@ -16,6 +16,7 @@ type Exchange @entity {
   "Address of the exchange"
   id: ID!
 
+  "Proxy link. Used to generate derived array of implementations."
   proxy: Proxy!
 
   "List of all tokens supported during the time this Exchange was the current implementation"
@@ -23,11 +24,13 @@ type Exchange @entity {
 }
 
 type Token @entity {
+  "Internal ID of the token within Loopring"
   id: ID!
 
   "Exchange implementation active when the token was registered"
   exchange: Exchange!
 
+  "Address of the token within the Ethereum network"
   address: Bytes!
 
   decimals: Int!
@@ -83,8 +86,10 @@ interface Transaction {
   "All transactions IDs follow the same pattern: <BLOCK ID>-<TX INDEX>"
   id: ID!
 
+  "Hex string representation of the encoded L2 data for this Transaction"
   data: String!
 
+  "Link to the Block entity where this Transaction took place"
   block: Block!
 }
 
@@ -95,10 +100,68 @@ type Deposit implements Transaction @entity {
 
   block: Block!
 
-  to: String! # Not sure what this represents yet
-  toAccountID: Int! # Should link to Account entity in the future
-  tokenID: Int! # Should link to Token entity
+  toAccount: Account!
+
+  token: Token!
+
+  # Raw data parsed from the L2 data
+  to: String!
+  toAccountID: Int!
+  tokenID: Int!
   amount: BigInt!
+}
+
+type Withdrawal implements Transaction @entity {
+  id: ID!
+
+  data: String!
+
+  block: Block!
+
+  fromAccount: Account!
+
+  token: Token!
+
+  feeToken: Token!
+
+  # Raw data parsed from the L2 data
+  type: Int!
+  from: String!
+  fromAccountID: Int!
+  tokenID: Int!
+  amount: BigInt!
+  feeTokenID: Int!
+  fee: Int!
+  onchainDataHash: String!
+  storageID: Int!
+}
+
+type Transfer implements Transaction @entity {
+  id: ID!
+
+  data: String!
+
+  block: Block!
+
+  fromAccount: Account!
+
+  toAccount: Account!
+
+  token: Token!
+
+  feeToken: Token!
+
+  # Raw data parsed from the L2 data
+  type: Int!
+  accountFromID: Int!
+  accountToID: Int!
+  tokenID: Int!
+  amount: Int!
+  feeTokenID: Int!
+  fee: Int!
+  storageID: Int!
+  from: String!
+  to: String!
 }
 
 type SpotTrade implements Transaction @entity {
@@ -108,7 +171,7 @@ type SpotTrade implements Transaction @entity {
 
   block: Block!
 
-
+  # Raw data parsed from the L2 data
   storageIdA: Int!
   storageIdB: Int!
 
@@ -125,43 +188,6 @@ type SpotTrade implements Transaction @entity {
   orderDataB: Int!
 }
 
-type Transfer implements Transaction @entity {
-  id: ID!
-
-  data: String!
-
-  block: Block!
-
-  type: Int!
-  accountFromID: Int!
-  accountToID: Int!
-  tokenID: Int!
-  amount: Int!
-  feeTokenID: Int!
-  fee: Int!
-  storageID: Int!
-  from: String!
-  to: String!
-}
-
-type Withdrawal implements Transaction @entity {
-  id: ID!
-
-  data: String!
-
-  block: Block!
-
-  type: Int!
-  from: String!
-  fromAccountID: Int!
-  tokenID: Int!
-  amount: BigInt!
-  feeTokenID: Int!
-  fee: Int!
-  onchainDataHash: String!
-  storageID: Int!
-}
-
 type AccountUpdate implements Transaction @entity {
   id: ID!
 
@@ -169,6 +195,7 @@ type AccountUpdate implements Transaction @entity {
 
   block: Block!
 
+  # Raw data parsed from the L2 data
   updateType: Int!
   owner: String!
   accountID: Int!
@@ -185,6 +212,7 @@ type AmmUpdate implements Transaction @entity {
 
   block: Block!
 
+  # Raw data parsed from the L2 data
   owner: String!
   accountID: Int!
   tokenID: Int!
@@ -201,6 +229,7 @@ type SignatureVerification implements Transaction @entity {
 
   block: Block!
 
+  # Raw data parsed from the L2 data
   owner: String!
   accountID: Int!
   verificationData: String!

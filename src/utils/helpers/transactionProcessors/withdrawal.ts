@@ -1,5 +1,7 @@
-import { Withdrawal, Block } from "../../../../generated/schema";
+import { Withdrawal, Block, Token } from "../../../../generated/schema";
+import { BigInt, Address, Bytes } from "@graphprotocol/graph-ts";
 import { extractData, extractBigInt, extractInt } from "../data";
+import { getOrCreateAccount, getToken } from "../index";
 
 // interface Withdrawal {
 //   type?: number;
@@ -105,5 +107,16 @@ export function processWithdrawal(id: String, data: String, block: Block): void 
   transaction.onchainDataHash = extractData(data, offset, 20);
   offset += 20;
 
+  let account = getOrCreateAccount(BigInt.fromI32(transaction.fromAccountID).toString())
+  account.address = Address.fromString(transaction.from) as Bytes
+
+  let token = getToken(BigInt.fromI32(transaction.tokenID).toString()) as Token
+  let feeToken = getToken(BigInt.fromI32(transaction.feeTokenID).toString()) as Token
+
+  transaction.fromAccount = account.id;
+  transaction.token = token.id;
+  transaction.feeToken = feeToken.id;
+
+  account.save();
   transaction.save();
 }

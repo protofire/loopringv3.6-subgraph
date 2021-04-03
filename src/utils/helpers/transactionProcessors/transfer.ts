@@ -1,5 +1,7 @@
-import { Transfer, Block } from "../../../../generated/schema";
+import { Transfer, Block, Token } from "../../../../generated/schema";
+import { BigInt, Address, Bytes } from "@graphprotocol/graph-ts";
 import { extractData, extractBigInt, extractInt } from "../data";
+import { getOrCreateAccount, getToken } from "../index";
 
 // interface Transfer {
 //   accountFromID?: number;
@@ -117,5 +119,21 @@ export function processTransfer(id: String, data: String, block: Block): void {
   transaction.from = extractData(data, offset, 20);;
   offset += 20;
 
+  let fromAccount = getOrCreateAccount(BigInt.fromI32(transaction.accountFromID).toString())
+  fromAccount.address = Address.fromString(transaction.from) as Bytes
+
+  let toAccount = getOrCreateAccount(BigInt.fromI32(transaction.accountToID).toString())
+  toAccount.address = Address.fromString(transaction.to) as Bytes
+
+  let token = getToken(BigInt.fromI32(transaction.tokenID).toString()) as Token
+  let feeToken = getToken(BigInt.fromI32(transaction.feeTokenID).toString()) as Token
+
+  transaction.fromAccount = fromAccount.id;
+  transaction.toAccount = toAccount.id;
+  transaction.token = token.id;
+  transaction.feeToken = feeToken.id;
+
+  fromAccount.save();
+  toAccount.save();
   transaction.save();
 }

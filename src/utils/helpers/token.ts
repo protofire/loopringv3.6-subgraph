@@ -1,11 +1,10 @@
 import { Token } from "../../../generated/schema";
 import { ERC20 } from "../../../generated/OwnedUpgradabilityProxy/ERC20";
-import { Address, BigInt } from "@graphprotocol/graph-ts";
+import { Address, BigInt, log } from "@graphprotocol/graph-ts";
 import { DEFAULT_DECIMALS } from "../../utils/decimals";
 import {
   BIGINT_ZERO,
-  BIGDECIMAL_ZERO,
-  ZERO_ADDRESS
+  BIGDECIMAL_ZERO
 } from "../../utils/constants";
 
 export function getOrCreateToken(
@@ -18,7 +17,7 @@ export function getOrCreateToken(
     token = new Token(tokenId);
     token.address = tokenAddress;
 
-    if (tokenId != ZERO_ADDRESS) {
+    if (tokenId != "0") {
       let erc20Token = ERC20.bind(tokenAddress);
 
       let tokenDecimals = erc20Token.try_decimals();
@@ -42,5 +41,12 @@ export function getOrCreateToken(
 
 export function getToken(tokenId: String): Token | null {
   let token = Token.load(tokenId);
+
+  if (token == null) {
+    log.warning("Tried to load token that doesn't exist yet. Token ID: {}", [
+      tokenId
+    ]);
+  }
+
   return token;
 }

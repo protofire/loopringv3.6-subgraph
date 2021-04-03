@@ -1,5 +1,7 @@
-import { Deposit, Block } from "../../../../generated/schema";
+import { Deposit, Block, Token } from "../../../../generated/schema";
+import { BigInt, Address, Bytes } from "@graphprotocol/graph-ts";
 import { extractData, extractBigInt, extractInt } from "../data";
+import { getOrCreateAccount, getToken } from "../index";
 
 // interface Deposit {
 //   to?: string;
@@ -62,5 +64,14 @@ export function processDeposit(id: String, data: String, block: Block): void {
   transaction.amount = extractBigInt(data, offset, 12);
   offset += 12;
 
+  let account = getOrCreateAccount(BigInt.fromI32(transaction.toAccountID).toString())
+  account.address = Address.fromString(transaction.to) as Bytes
+
+  let token = getToken(BigInt.fromI32(transaction.tokenID).toString()) as Token
+
+  transaction.toAccount = account.id;
+  transaction.token = token.id;
+
+  account.save();
   transaction.save();
 }
