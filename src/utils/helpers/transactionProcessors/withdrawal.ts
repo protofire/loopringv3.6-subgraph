@@ -1,7 +1,18 @@
-import { Withdrawal, Block, Token } from "../../../../generated/schema";
+import {
+  Withdrawal,
+  Block,
+  Token,
+  User,
+  Pool
+} from "../../../../generated/schema";
 import { BigInt, Address, Bytes } from "@graphprotocol/graph-ts";
 import { extractData, extractBigInt, extractInt } from "../data";
-import { getOrCreateAccount, getToken } from "../index";
+import {
+  getOrCreateUser,
+  getOrCreatePool,
+  getToken,
+  intToString
+} from "../index";
 
 // interface Withdrawal {
 //   type?: number;
@@ -81,7 +92,11 @@ import { getOrCreateAccount, getToken } from "../index";
 //   }
 // }
 
-export function processWithdrawal(id: String, data: String, block: Block): void {
+export function processWithdrawal(
+  id: String,
+  data: String,
+  block: Block
+): void {
   let transaction = new Withdrawal(id);
   transaction.data = data;
   transaction.block = block.id;
@@ -100,23 +115,30 @@ export function processWithdrawal(id: String, data: String, block: Block): void 
   offset += 12;
   transaction.feeTokenID = extractInt(data, offset, 2);
   offset += 2;
-  transaction.fee = extractInt(data, offset, 2)
+  transaction.fee = extractInt(data, offset, 2);
   offset += 2;
   transaction.storageID = extractInt(data, offset, 4);
   offset += 4;
   transaction.onchainDataHash = extractData(data, offset, 20);
   offset += 20;
 
-  let account = getOrCreateAccount(BigInt.fromI32(transaction.fromAccountID).toString())
-  account.address = Address.fromString(transaction.from) as Bytes
+  if (transaction.fromAccountID > 10000) {
+    let account = getOrCreateUser(intToString(transaction.fromAccountID));
+    account.address = Address.fromString(transaction.from) as Bytes;
+    account.save();
+    transaction.fromAccount = account.id;
+  } else {
+    let account = getOrCreatePool(intToString(transaction.fromAccountID));
+    account.address = Address.fromString(transaction.from) as Bytes;
+    account.save();
+    transaction.fromAccount = account.id;
+  }
 
-  let token = getToken(BigInt.fromI32(transaction.tokenID).toString()) as Token
-  let feeToken = getToken(BigInt.fromI32(transaction.feeTokenID).toString()) as Token
+  let token = getToken(intToString(transaction.tokenID)) as Token;
+  let feeToken = getToken(intToString(transaction.feeTokenID)) as Token;
 
-  transaction.fromAccount = account.id;
   transaction.token = token.id;
   transaction.feeToken = feeToken.id;
 
-  account.save();
   transaction.save();
 }

@@ -1,14 +1,27 @@
-import { Account } from "../../../generated/schema";
+import { Pool, User } from "../../../generated/schema";
 
-export function getOrCreateAccount(
+export function getOrCreateUser(
   id: String,
   createIfNotFound: boolean = true
-): Account {
-  let account = Account.load(id);
+): User {
+  let user = User.load(id);
 
-  if (account == null && createIfNotFound) {
-    account = new Account(id);
+  if (user == null && createIfNotFound) {
+    user = new User(id);
   }
 
-  return account as Account;
+  return user as User;
+}
+
+export function getOrCreatePool(
+  id: String,
+  createIfNotFound: boolean = true
+): Pool {
+  let pool = Pool.load(id);
+
+  if (pool == null && createIfNotFound) {
+    pool = new Pool(id);
+  }
+
+  return pool as Pool;
 }

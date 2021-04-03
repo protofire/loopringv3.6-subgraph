@@ -1,7 +1,17 @@
-import { SignatureVerification, Block } from "../../../../generated/schema";
+import {
+  SignatureVerification,
+  Block,
+  User,
+  Pool
+} from "../../../../generated/schema";
 import { BigInt, Address, Bytes } from "@graphprotocol/graph-ts";
 import { extractData, extractBigInt, extractInt } from "../data";
-import { getOrCreateAccount, getToken } from "../index";
+import {
+  getOrCreateUser,
+  getOrCreatePool,
+  getToken,
+  intToString
+} from "../index";
 
 // interface SignatureVerification {
 //   owner?: string;
@@ -37,7 +47,11 @@ import { getOrCreateAccount, getToken } from "../index";
 //   }
 // }
 
-export function processSignatureVerification(id: String, data: String, block: Block): void {
+export function processSignatureVerification(
+  id: String,
+  data: String,
+  block: Block
+): void {
   let transaction = new SignatureVerification(id);
   transaction.data = data;
   transaction.block = block.id;
@@ -51,12 +65,17 @@ export function processSignatureVerification(id: String, data: String, block: Bl
   transaction.verificationData = extractData(data, offset, 32);
   offset += 32;
 
+  if (transaction.accountID > 10000) {
+    let account = getOrCreateUser(intToString(transaction.accountID));
+    account.address = Address.fromString(transaction.owner) as Bytes;
+    account.save();
+    transaction.account = account.id;
+  } else {
+    let account = getOrCreatePool(intToString(transaction.accountID));
+    account.address = Address.fromString(transaction.owner) as Bytes;
+    account.save();
+    transaction.account = account.id;
+  }
 
-  let account = getOrCreateAccount(BigInt.fromI32(transaction.accountID).toString())
-  account.address = Address.fromString(transaction.owner) as Bytes
-
-  transaction.account = account.id;
-
-  account.save();
   transaction.save();
 }

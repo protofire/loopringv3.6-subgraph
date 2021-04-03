@@ -1,7 +1,18 @@
-import { Transfer, Block, Token } from "../../../../generated/schema";
+import {
+  Transfer,
+  Block,
+  Token,
+  User,
+  Pool
+} from "../../../../generated/schema";
 import { BigInt, Address, Bytes } from "@graphprotocol/graph-ts";
 import { extractData, extractBigInt, extractInt } from "../data";
-import { getOrCreateAccount, getToken } from "../index";
+import {
+  getOrCreateUser,
+  getOrCreatePool,
+  getToken,
+  intToString
+} from "../index";
 
 // interface Transfer {
 //   accountFromID?: number;
@@ -114,28 +125,40 @@ export function processTransfer(id: String, data: String, block: Block): void {
   offset += 2;
   transaction.storageID = extractInt(data, offset, 4);
   offset += 4;
-  transaction.to = extractData(data, offset, 20);;
+  transaction.to = extractData(data, offset, 20);
   offset += 20;
-  transaction.from = extractData(data, offset, 20);;
+  transaction.from = extractData(data, offset, 20);
   offset += 20;
 
-  // Check whether accountID > 10.000 to differentiate transfers between accounts from Pool liquidity additions
+  if (transaction.accountFromID > 10000) {
+    let fromAccount = getOrCreateUser(intToString(transaction.accountFromID));
+    fromAccount.address = Address.fromString(transaction.from) as Bytes;
+    fromAccount.save();
+    transaction.fromAccount = fromAccount.id;
+  } else {
+    let fromAccount = getOrCreatePool(intToString(transaction.accountFromID));
+    fromAccount.address = Address.fromString(transaction.from) as Bytes;
+    fromAccount.save();
+    transaction.fromAccount = fromAccount.id;
+  }
 
-  let fromAccount = getOrCreateAccount(BigInt.fromI32(transaction.accountFromID).toString())
-  fromAccount.address = Address.fromString(transaction.from) as Bytes
+  if (transaction.accountToID > 10000) {
+    let toAccount = getOrCreateUser(intToString(transaction.accountToID));
+    toAccount.address = Address.fromString(transaction.to) as Bytes;
+    toAccount.save();
+    transaction.toAccount = toAccount.id;
+  } else {
+    let toAccount = getOrCreatePool(intToString(transaction.accountToID));
+    toAccount.address = Address.fromString(transaction.to) as Bytes;
+    toAccount.save();
+    transaction.toAccount = toAccount.id;
+  }
 
-  let toAccount = getOrCreateAccount(BigInt.fromI32(transaction.accountToID).toString())
-  toAccount.address = Address.fromString(transaction.to) as Bytes
+  let token = getToken(intToString(transaction.tokenID)) as Token;
+  let feeToken = getToken(intToString(transaction.feeTokenID)) as Token;
 
-  let token = getToken(BigInt.fromI32(transaction.tokenID).toString()) as Token
-  let feeToken = getToken(BigInt.fromI32(transaction.feeTokenID).toString()) as Token
-
-  transaction.fromAccount = fromAccount.id;
-  transaction.toAccount = toAccount.id;
   transaction.token = token.id;
   transaction.feeToken = feeToken.id;
 
-  fromAccount.save();
-  toAccount.save();
   transaction.save();
 }

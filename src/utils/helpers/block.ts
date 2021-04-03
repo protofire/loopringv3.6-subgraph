@@ -7,6 +7,7 @@ import {
   ZERO_ADDRESS
 } from "../../utils/constants";
 import { extractData } from "./data";
+import { intToString } from "./index";
 import { processTransactionData } from "./transaction";
 
 export function getOrCreateBlock(id: String): Block {
@@ -51,7 +52,7 @@ export function processBlockData(block: Block): Block {
     let txData = txData1.concat(txData2);
 
     // Refactor to use methods from transaction helper
-    let txId = block.id.concat("-").concat(BigInt.fromI32(i).toString())
+    let txId = block.id.concat("-").concat(intToString(i))
     processTransactionData(txId, txData, block)
   }
 

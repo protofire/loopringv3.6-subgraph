@@ -9,13 +9,14 @@ import {
   getOrCreateToken,
   getProxy,
   getOrCreateBlock,
-  processBlockData
+  processBlockData,
+  intToString
 } from "../utils/helpers";
 import { BIGINT_ZERO, BIGINT_ONE } from "../utils/constants";
 import { DEFAULT_DECIMALS, toDecimal } from "../utils/decimals";
 
 export function handleTokenRegistered(event: TokenRegistered): void {
-  let tokenId = BigInt.fromI32(event.params.tokenId).toString();
+  let tokenId = intToString(event.params.tokenId);
   let token = getOrCreateToken(tokenId, event.params.token);
   let proxy = getProxy();
 

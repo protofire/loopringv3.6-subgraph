@@ -75,18 +75,24 @@ type Block @entity {
   transactions: [Transaction!]! @derivedFrom(field:"block")
 }
 
-type Account @entity {
+interface Account {
+  id: ID!
+
+  address: Bytes!
+}
+
+type User implements Account @entity {
   "Internal ID used in the L2 transactions"
   id: ID!
 
   address: Bytes!
 }
 
-type Pool @entity {
+type Pool implements Account @entity {
   "Internal ID used in the L2 transactions"
   id: ID!
 
-  owner: Bytes!
+  address: Bytes!
 }
 
 interface Transaction {
@@ -208,7 +214,7 @@ type AccountUpdate implements Transaction @entity {
 
   block: Block!
 
-  account: Account!
+  user: User!
 
   feeToken: Token!
 

@@ -1,7 +1,18 @@
-import { SpotTrade, Block, Token } from "../../../../generated/schema";
+import {
+  SpotTrade,
+  Block,
+  Token,
+  User,
+  Pool
+} from "../../../../generated/schema";
 import { BigInt, Address, Bytes } from "@graphprotocol/graph-ts";
 import { extractData, extractBigInt, extractInt } from "../data";
-import { getOrCreateAccount, getToken } from "../index";
+import {
+  getOrCreateUser,
+  getOrCreatePool,
+  getToken,
+  intToString
+} from "../index";
 
 // interface SettlementValues {
 //   fillSA: BN;
@@ -237,18 +248,31 @@ export function processSpotTrade(id: String, data: String, block: Block): void {
   transaction.orderDataB = extractInt(data, offset, 1);
   offset += 1;
 
-  let accountA = getOrCreateAccount(BigInt.fromI32(transaction.accountIdA).toString())
-  let accountB = getOrCreateAccount(BigInt.fromI32(transaction.accountIdB).toString())
+  if (transaction.accountIdA > 10000) {
+    let accountA = getOrCreateUser(intToString(transaction.accountIdA));
+    accountA.save();
+    transaction.accountA = accountA.id;
+  } else {
+    let accountA = getOrCreatePool(intToString(transaction.accountIdA));
+    accountA.save();
+    transaction.accountA = accountA.id;
+  }
 
-  let tokenA = getToken(BigInt.fromI32(transaction.tokenIDA).toString()) as Token
-  let tokenB = getToken(BigInt.fromI32(transaction.tokenIDB).toString()) as Token
+  if (transaction.accountIdB > 10000) {
+    let accountB = getOrCreateUser(intToString(transaction.accountIdB));
+    accountB.save();
+    transaction.accountB = accountB.id;
+  } else {
+    let accountB = getOrCreatePool(intToString(transaction.accountIdB));
+    accountB.save();
+    transaction.accountB = accountB.id;
+  }
 
-  transaction.accountA = accountA.id;
-  transaction.accountB = accountB.id;
+  let tokenA = getToken(intToString(transaction.tokenIDA)) as Token;
+  let tokenB = getToken(intToString(transaction.tokenIDB)) as Token;
+
   transaction.tokenA = tokenA.id;
   transaction.tokenB = tokenB.id;
 
-  accountA.save();
-  accountB.save();
   transaction.save();
 }

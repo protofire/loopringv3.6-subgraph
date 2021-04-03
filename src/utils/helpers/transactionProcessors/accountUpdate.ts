@@ -1,7 +1,7 @@
 import { AccountUpdate, Block, Token } from "../../../../generated/schema";
 import { BigInt, Address, Bytes } from "@graphprotocol/graph-ts";
 import { extractData, extractBigInt, extractInt } from "../data";
-import { getOrCreateAccount, getToken } from "../index";
+import { getOrCreateUser, getToken, intToString } from "../index";
 
 // interface AccountUpdate {
 //   owner?: string;
@@ -72,7 +72,11 @@ import { getOrCreateAccount, getToken } from "../index";
 //   }
 // }
 
-export function processAccountUpdate(id: String, data: String, block: Block): void {
+export function processAccountUpdate(
+  id: String,
+  data: String,
+  block: Block
+): void {
   let transaction = new AccountUpdate(id);
   transaction.data = data;
   transaction.block = block.id;
@@ -87,22 +91,22 @@ export function processAccountUpdate(id: String, data: String, block: Block): vo
   offset += 4;
   transaction.feeTokenID = extractInt(data, offset, 2);
   offset += 2;
-  transaction.fee = extractInt(data, offset, 2)
+  transaction.fee = extractInt(data, offset, 2);
   offset += 2;
   transaction.publicKey = extractData(data, offset, 32);
   offset += 32;
   transaction.nonce = extractInt(data, offset, 4);
   offset += 4;
 
-  let account = getOrCreateAccount(BigInt.fromI32(transaction.accountID).toString())
-  account.address = Address.fromString(transaction.owner) as Bytes
+  let user = getOrCreateUser(intToString(transaction.accountID));
+  user.address = Address.fromString(transaction.owner) as Bytes;
   // TO-DO Update the rest of the account parameters here.
 
-  let feeToken = getToken(BigInt.fromI32(transaction.feeTokenID).toString()) as Token
+  let feeToken = getToken(intToString(transaction.feeTokenID)) as Token;
 
-  transaction.account = account.id;
+  transaction.user = user.id;
   transaction.feeToken = feeToken.id;
 
-  account.save();
+  user.save();
   transaction.save();
 }
