@@ -4,8 +4,8 @@ export { processTransactionData } from "./transaction";
 
 export { getOrCreateToken, getToken } from "./token";
 
-export { getOrCreateUser, getOrCreatePool } from "./account";
+export { getOrCreateUser, getOrCreatePool, getOrCreateAccountTokenBalance } from "./account";
 
 export { getProxy, getOrCreateExchange } from "./upgradabilityProxy";
 
-export { intToString } from "./util";
+export { intToString, compoundId } from "./util";

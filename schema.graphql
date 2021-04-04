@@ -79,6 +79,8 @@ interface Account {
   id: ID!
 
   address: Bytes!
+
+  balances: [AccountTokenBalance!]! @derivedFrom(field:"account")
 }
 
 type User implements Account @entity {
@@ -86,6 +88,8 @@ type User implements Account @entity {
   id: ID!
 
   address: Bytes!
+
+  balances: [AccountTokenBalance!]! @derivedFrom(field:"account")
 }
 
 type Pool implements Account @entity {
@@ -93,6 +97,21 @@ type Pool implements Account @entity {
   id: ID!
 
   address: Bytes!
+
+  balances: [AccountTokenBalance!]! @derivedFrom(field:"account")
+}
+
+type AccountTokenBalance @entity {
+  "ID is recreated following this pattern: <ACCOUNT ID>-<TOKEN ID>. Example: 10001-1"
+  id: ID!
+
+  balance: BigInt!
+
+  "Link to the Account entity. Can be a Pool or User entity"
+  account: Account!
+
+  "Link to the Token entity. Holds all details of the token itself."
+  token: Token!
 }
 
 interface Transaction {
@@ -144,7 +163,7 @@ type Withdrawal implements Transaction @entity {
   tokenID: Int!
   amount: BigInt!
   feeTokenID: Int!
-  fee: Int!
+  fee: BigInt!
   onchainDataHash: String!
   storageID: Int!
 }
@@ -169,9 +188,9 @@ type Transfer implements Transaction @entity {
   accountFromID: Int!
   accountToID: Int!
   tokenID: Int!
-  amount: Int!
+  amount: BigInt!
   feeTokenID: Int!
-  fee: Int!
+  fee: BigInt!
   storageID: Int!
   from: String!
   to: String!
@@ -223,7 +242,7 @@ type AccountUpdate implements Transaction @entity {
   owner: String!
   accountID: Int!
   feeTokenID: Int!
-  fee: Int!
+  fee: BigInt!
   publicKey: String!
   nonce: Int!
 }

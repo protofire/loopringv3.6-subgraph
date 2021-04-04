@@ -11,7 +11,8 @@ import {
   getOrCreateUser,
   getOrCreatePool,
   getToken,
-  intToString
+  intToString,
+  getOrCreateAccountTokenBalance
 } from "../index";
 
 // interface Deposit {
@@ -75,21 +76,28 @@ export function processDeposit(id: String, data: String, block: Block): void {
   transaction.amount = extractBigInt(data, offset, 12);
   offset += 12;
 
-  if (transaction.toAccountID > 10000) {
-    let account = getOrCreateUser(intToString(transaction.toAccountID));
-    account.address = Address.fromString(transaction.to) as Bytes;
-    account.save();
-    transaction.toAccount = account.id;
-  } else {
-    let account = getOrCreatePool(intToString(transaction.toAccountID));
-    account.address = Address.fromString(transaction.to) as Bytes;
-    account.save();
-    transaction.toAccount = account.id;
-  }
+  let accountId = intToString(transaction.toAccountID);
 
   let token = getToken(intToString(transaction.tokenID)) as Token;
 
+  let accountTokenBalance = getOrCreateAccountTokenBalance(accountId, token.id);
+  accountTokenBalance.balance = accountTokenBalance.balance.plus(
+    transaction.amount
+  );
+
+  if (transaction.toAccountID > 10000) {
+    let account = getOrCreateUser(accountId);
+    account.address = Address.fromString(transaction.to) as Bytes;
+    account.save();
+  } else {
+    let account = getOrCreatePool(accountId);
+    account.address = Address.fromString(transaction.to) as Bytes;
+    account.save();
+  }
+
+  transaction.toAccount = accountId;
   transaction.token = token.id;
 
+  accountTokenBalance.save();
   transaction.save();
 }

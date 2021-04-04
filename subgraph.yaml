@@ -20,6 +20,8 @@ dataSources:
         - Proxy
         - Exchange
         - Token
+        - User
+        - Pool
       abis:
         - name: OwnedUpgradabilityProxy
           file: ./abis/OwnedUpgradabilityProxy.json

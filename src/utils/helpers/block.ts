@@ -7,7 +7,7 @@ import {
   ZERO_ADDRESS
 } from "../../utils/constants";
 import { extractData } from "./data";
-import { intToString } from "./index";
+import { intToString, compoundId } from "./index";
 import { processTransactionData } from "./transaction";
 
 export function getOrCreateBlock(id: String): Block {
@@ -51,21 +51,9 @@ export function processBlockData(block: Block): Block {
     );
     let txData = txData1.concat(txData2);
 
-    // Refactor to use methods from transaction helper
-    let txId = block.id.concat("-").concat(intToString(i))
-    processTransactionData(txId, txData, block)
+    let txId = compoundId(block.id, intToString(i));
+    processTransactionData(txId, txData, block);
   }
-
-  //   export enum TransactionType {
-  //   NOOP = 0,
-  //   DEPOSIT,1
-  //   WITHDRAWAL,2
-  //   TRANSFER,3
-  //   SPOT_TRADE,4
-  //   ACCOUNT_UPDATE,5
-  //   AMM_UPDATE,6
-  //   SIGNATURE_VERIFICATION,7
-  // }
 
   return block as Block;
 }

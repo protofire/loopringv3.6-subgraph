@@ -1,4 +1,6 @@
-import { Pool, User } from "../../../generated/schema";
+import { Pool, User, AccountTokenBalance } from "../../../generated/schema";
+import { BigInt } from "@graphprotocol/graph-ts";
+import { compoundId } from "./util";
 
 export function getOrCreateUser(
   id: String,
@@ -24,4 +26,22 @@ export function getOrCreatePool(
   }
 
   return pool as Pool;
+}
+
+export function getOrCreateAccountTokenBalance(
+  accountId: String,
+  tokenId: String,
+  createIfNotFound: boolean = true
+): AccountTokenBalance {
+  let id = compoundId(accountId, tokenId);
+  let balance = AccountTokenBalance.load(id);
+
+  if (balance == null && createIfNotFound) {
+    balance = new AccountTokenBalance(id);
+    balance.balance = BigInt.fromI32(0);
+    balance.account = accountId;
+    balance.token = tokenId;
+  }
+
+  return balance as AccountTokenBalance;
 }

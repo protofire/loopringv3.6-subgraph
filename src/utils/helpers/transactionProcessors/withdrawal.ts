@@ -6,12 +6,13 @@ import {
   Pool
 } from "../../../../generated/schema";
 import { BigInt, Address, Bytes } from "@graphprotocol/graph-ts";
-import { extractData, extractBigInt, extractInt } from "../data";
+import { extractData, extractBigInt, extractInt, extractBigIntFromFloat } from "../data";
 import {
   getOrCreateUser,
   getOrCreatePool,
   getToken,
-  intToString
+  intToString,
+  getOrCreateAccountTokenBalance
 } from "../index";
 
 // interface Withdrawal {
@@ -115,28 +116,39 @@ export function processWithdrawal(
   offset += 12;
   transaction.feeTokenID = extractInt(data, offset, 2);
   offset += 2;
-  transaction.fee = extractInt(data, offset, 2);
+  transaction.fee = extractBigIntFromFloat(data, offset, 2, 5, 11, 10);
   offset += 2;
   transaction.storageID = extractInt(data, offset, 4);
   offset += 4;
   transaction.onchainDataHash = extractData(data, offset, 20);
   offset += 20;
 
-  if (transaction.fromAccountID > 10000) {
-    let account = getOrCreateUser(intToString(transaction.fromAccountID));
-    account.address = Address.fromString(transaction.from) as Bytes;
-    account.save();
-    transaction.fromAccount = account.id;
-  } else {
-    let account = getOrCreatePool(intToString(transaction.fromAccountID));
-    account.address = Address.fromString(transaction.from) as Bytes;
-    account.save();
-    transaction.fromAccount = account.id;
-  }
+  let accountId = intToString(transaction.fromAccountID)
 
   let token = getToken(intToString(transaction.tokenID)) as Token;
   let feeToken = getToken(intToString(transaction.feeTokenID)) as Token;
 
+  let accountTokenBalance = getOrCreateAccountTokenBalance(accountId, token.id);
+  accountTokenBalance.balance = accountTokenBalance.balance.minus(
+    transaction.amount
+  );
+
+  let accountTokenFeeBalance = getOrCreateAccountTokenBalance(accountId, feeToken.id);
+  accountTokenFeeBalance.balance = accountTokenFeeBalance.balance.minus(
+    transaction.fee
+  );
+
+  if (transaction.fromAccountID > 10000) {
+    let account = getOrCreateUser(accountId);
+    account.address = Address.fromString(transaction.from) as Bytes;
+    account.save();
+  } else {
+    let account = getOrCreatePool(accountId);
+    account.address = Address.fromString(transaction.from) as Bytes;
+    account.save();
+  }
+
+  transaction.fromAccount = accountId;
   transaction.token = token.id;
   transaction.feeToken = feeToken.id;
 

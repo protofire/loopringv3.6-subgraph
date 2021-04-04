@@ -32,12 +32,12 @@ export function processTransactionData(id: String, data: String, block: Block): 
     // For now do nothing. Maybe we want to track the amount of No-op in the future?
   } else if(txType == TRANSACTION_DEPOSIT) {
     processDeposit(id, data, block)
-  } else if(txType == TRANSACTION_SPOT_TRADE) {
-    processSpotTrade(id, data, block)
-  } else if(txType == TRANSACTION_TRANSFER) {
-    processTransfer(id, data, block)
   } else if(txType == TRANSACTION_WITHDRAWAL) {
     processWithdrawal(id, data, block)
+  } else if(txType == TRANSACTION_TRANSFER) {
+    processTransfer(id, data, block)
+  } else if(txType == TRANSACTION_SPOT_TRADE) {
+    processSpotTrade(id, data, block)
   } else if(txType == TRANSACTION_ACCOUNT_UPDATE) {
     processAccountUpdate(id, data, block)
   } else if(txType == TRANSACTION_AMM_UPDATE) {

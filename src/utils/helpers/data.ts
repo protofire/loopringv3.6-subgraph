@@ -25,3 +25,23 @@ export function extractBigInt(data: String, offset: i32, length: i32): BigInt {
     Bytes.fromHexString(extractData(data, offset, length)).reverse() as Bytes
   );
 }
+
+export function extractBigIntFromFloat(
+  data: String,
+  offset: i32,
+  length: i32,
+  numBitsExponent: i32,
+  numBitsMantissa: i32,
+  exponentBase: i32
+): BigInt {
+  let f = extractInt(data, offset, length);
+  let exponent = (f >> numBitsMantissa);
+  let mantissa = BigInt.fromI32(f & ((1 << numBitsMantissa) - 1));
+  let expSide = BigInt.fromI32(exponentBase).pow(exponent as u8)
+  let value = mantissa * expSide;
+  return value;
+}
+
+// Float24Encoding = FloatEncoding(5, 19, 10)
+// Float16Encoding = FloatEncoding(5, 11, 10)
+// Float12Encoding = FloatEncoding(5,  7, 10)

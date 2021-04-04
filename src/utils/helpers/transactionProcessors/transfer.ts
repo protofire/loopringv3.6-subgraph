@@ -6,12 +6,13 @@ import {
   Pool
 } from "../../../../generated/schema";
 import { BigInt, Address, Bytes } from "@graphprotocol/graph-ts";
-import { extractData, extractBigInt, extractInt } from "../data";
+import { extractData, extractBigInt, extractInt, extractBigIntFromFloat } from "../data";
 import {
   getOrCreateUser,
   getOrCreatePool,
   getToken,
-  intToString
+  intToString,
+  getOrCreateAccountTokenBalance
 } from "../index";
 
 // interface Transfer {
@@ -117,11 +118,11 @@ export function processTransfer(id: String, data: String, block: Block): void {
   offset += 4;
   transaction.tokenID = extractInt(data, offset, 2);
   offset += 2;
-  transaction.amount = extractInt(data, offset, 3);
+  transaction.amount = extractBigIntFromFloat(data, offset, 3, 5, 19, 10);
   offset += 3;
   transaction.feeTokenID = extractInt(data, offset, 2);
   offset += 2;
-  transaction.fee = extractInt(data, offset, 2);
+  transaction.fee = extractBigIntFromFloat(data, offset, 2, 5, 11, 10);
   offset += 2;
   transaction.storageID = extractInt(data, offset, 4);
   offset += 4;
@@ -130,33 +131,51 @@ export function processTransfer(id: String, data: String, block: Block): void {
   transaction.from = extractData(data, offset, 20);
   offset += 20;
 
-  if (transaction.accountFromID > 10000) {
-    let fromAccount = getOrCreateUser(intToString(transaction.accountFromID));
-    fromAccount.address = Address.fromString(transaction.from) as Bytes;
-    fromAccount.save();
-    transaction.fromAccount = fromAccount.id;
-  } else {
-    let fromAccount = getOrCreatePool(intToString(transaction.accountFromID));
-    fromAccount.address = Address.fromString(transaction.from) as Bytes;
-    fromAccount.save();
-    transaction.fromAccount = fromAccount.id;
-  }
-
-  if (transaction.accountToID > 10000) {
-    let toAccount = getOrCreateUser(intToString(transaction.accountToID));
-    toAccount.address = Address.fromString(transaction.to) as Bytes;
-    toAccount.save();
-    transaction.toAccount = toAccount.id;
-  } else {
-    let toAccount = getOrCreatePool(intToString(transaction.accountToID));
-    toAccount.address = Address.fromString(transaction.to) as Bytes;
-    toAccount.save();
-    transaction.toAccount = toAccount.id;
-  }
+  let fromAccountId = intToString(transaction.accountFromID)
+  let toAccountId = intToString(transaction.accountToID)
 
   let token = getToken(intToString(transaction.tokenID)) as Token;
   let feeToken = getToken(intToString(transaction.feeTokenID)) as Token;
 
+  // Token transfer balance calculations
+  let fromAccountTokenBalance = getOrCreateAccountTokenBalance(fromAccountId, token.id);
+  fromAccountTokenBalance.balance = fromAccountTokenBalance.balance.minus(
+    transaction.amount
+  );
+
+  let toAccountTokenBalance = getOrCreateAccountTokenBalance(toAccountId, token.id);
+  toAccountTokenBalance.balance = toAccountTokenBalance.balance.plus(
+    transaction.amount
+  );
+
+  // Fee token balance calculation
+  let fromAccountTokenFeeBalance = getOrCreateAccountTokenBalance(fromAccountId, feeToken.id);
+  fromAccountTokenBalance.balance = fromAccountTokenBalance.balance.minus(
+    transaction.fee
+  );
+
+  if (transaction.accountFromID > 10000) {
+    let fromAccount = getOrCreateUser(fromAccountId);
+    fromAccount.address = Address.fromString(transaction.from) as Bytes;
+    fromAccount.save();
+  } else {
+    let fromAccount = getOrCreatePool(fromAccountId);
+    fromAccount.address = Address.fromString(transaction.from) as Bytes;
+    fromAccount.save();
+  }
+
+  if (transaction.accountToID > 10000) {
+    let toAccount = getOrCreateUser(toAccountId);
+    toAccount.address = Address.fromString(transaction.to) as Bytes;
+    toAccount.save();
+  } else {
+    let toAccount = getOrCreatePool(toAccountId);
+    toAccount.address = Address.fromString(transaction.to) as Bytes;
+    toAccount.save();
+  }
+
+  transaction.toAccount = toAccountId;
+  transaction.fromAccount = fromAccountId;
   transaction.token = token.id;
   transaction.feeToken = feeToken.id;
 

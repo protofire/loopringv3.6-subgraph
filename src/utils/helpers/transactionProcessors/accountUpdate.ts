@@ -1,6 +1,6 @@
 import { AccountUpdate, Block, Token } from "../../../../generated/schema";
 import { BigInt, Address, Bytes } from "@graphprotocol/graph-ts";
-import { extractData, extractBigInt, extractInt } from "../data";
+import { extractData, extractBigInt, extractInt, extractBigIntFromFloat } from "../data";
 import { getOrCreateUser, getToken, intToString } from "../index";
 
 // interface AccountUpdate {
@@ -91,7 +91,7 @@ export function processAccountUpdate(
   offset += 4;
   transaction.feeTokenID = extractInt(data, offset, 2);
   offset += 2;
-  transaction.fee = extractInt(data, offset, 2);
+  transaction.fee = extractBigIntFromFloat(data, offset, 2, 5, 11, 10);
   offset += 2;
   transaction.publicKey = extractData(data, offset, 32);
   offset += 32;

@@ -6,12 +6,13 @@ import {
   Pool
 } from "../../../../generated/schema";
 import { BigInt, Address, Bytes } from "@graphprotocol/graph-ts";
-import { extractData, extractBigInt, extractInt } from "../data";
+import { extractData, extractBigInt, extractInt, extractBigIntFromFloat } from "../data";
 import {
   getOrCreateUser,
   getOrCreatePool,
   getToken,
-  intToString
+  intToString,
+  getOrCreateAccountTokenBalance
 } from "../index";
 
 // interface SettlementValues {
@@ -248,29 +249,16 @@ export function processSpotTrade(id: String, data: String, block: Block): void {
   transaction.orderDataB = extractInt(data, offset, 1);
   offset += 1;
 
-  if (transaction.accountIdA > 10000) {
-    let accountA = getOrCreateUser(intToString(transaction.accountIdA));
-    accountA.save();
-    transaction.accountA = accountA.id;
-  } else {
-    let accountA = getOrCreatePool(intToString(transaction.accountIdA));
-    accountA.save();
-    transaction.accountA = accountA.id;
-  }
-
-  if (transaction.accountIdB > 10000) {
-    let accountB = getOrCreateUser(intToString(transaction.accountIdB));
-    accountB.save();
-    transaction.accountB = accountB.id;
-  } else {
-    let accountB = getOrCreatePool(intToString(transaction.accountIdB));
-    accountB.save();
-    transaction.accountB = accountB.id;
-  }
+  // There's no need to create the accounts, they don't need to be updated
+  // and they can't be created first during a SpotTrade transaction.
+  let accountAID = intToString(transaction.accountIdA)
+  let accountBID = intToString(transaction.accountIdB)
 
   let tokenA = getToken(intToString(transaction.tokenIDA)) as Token;
   let tokenB = getToken(intToString(transaction.tokenIDB)) as Token;
 
+  transaction.accountA = accountAID;
+  transaction.accountB = accountBID;
   transaction.tokenA = tokenA.id;
   transaction.tokenB = tokenB.id;
 
