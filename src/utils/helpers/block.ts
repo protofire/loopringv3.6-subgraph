@@ -6,7 +6,7 @@ import {
   BIGDECIMAL_ZERO,
   ZERO_ADDRESS
 } from "../../utils/constants";
-import { extractData } from "./data";
+import { extractData, extractInt } from "./data";
 import { intToString, compoundId } from "./index";
 import { processTransactionData } from "./transaction";
 
@@ -26,19 +26,15 @@ export function processBlockData(block: Block): Block {
 
   // General data
   offset += 20 + 32 + 32 + 4;
-  let protocolFeeTakerBips = extractData(data, offset, 1);
+  block.protocolFeeTakerBips = extractInt(data, offset, 1);
   offset += 1;
-  let protocolFeeMakerBips = extractData(data, offset, 1);
+  block.protocolFeeMakerBips = extractInt(data, offset, 1);
   offset += 1;
-  let numConditionalTransactions = extractData(data, offset, 4);
+  block.numConditionalTransactions = extractInt(data, offset, 4);
   offset += 4;
-  let operatorAccountID = extractData(data, offset, 4);
+  block.operatorAccountID = extractInt(data, offset, 4);
   offset += 4;
-
-  block.protocolFeeTakerBips = protocolFeeTakerBips;
-  block.protocolFeeMakerBips = protocolFeeMakerBips;
-  block.numConditionalTransactions = numConditionalTransactions;
-  block.operatorAccountID = operatorAccountID;
+  block.operatorAccount = intToString(block.operatorAccountID)
 
   for (let i = 0; i < block.blockSize; i++) {
     let size1 = 29;

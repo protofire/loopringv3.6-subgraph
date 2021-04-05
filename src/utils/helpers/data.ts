@@ -26,6 +26,16 @@ export function extractBigInt(data: String, offset: i32, length: i32): BigInt {
   );
 }
 
+export function stringBytesToI32(data: String): i32 {
+  return stringBytesToBigInt(data).toI32();
+}
+
+export function stringBytesToBigInt(data: String): BigInt {
+  return BigInt.fromUnsignedBytes(
+    Bytes.fromHexString(data).reverse() as Bytes
+  );
+}
+
 export function extractBigIntFromFloat(
   data: String,
   offset: i32,
@@ -35,9 +45,9 @@ export function extractBigIntFromFloat(
   exponentBase: i32
 ): BigInt {
   let f = extractInt(data, offset, length);
-  let exponent = (f >> numBitsMantissa);
+  let exponent = f >> numBitsMantissa;
   let mantissa = BigInt.fromI32(f & ((1 << numBitsMantissa) - 1));
-  let expSide = BigInt.fromI32(exponentBase).pow(exponent as u8)
+  let expSide = BigInt.fromI32(exponentBase).pow(exponent as u8);
   let value = mantissa * expSide;
   return value;
 }

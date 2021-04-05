@@ -67,10 +67,12 @@ type Block @entity {
   offchainData: Bytes!
 
   # Parsed data from block
-  protocolFeeTakerBips: String!
-  protocolFeeMakerBips: String!
-  numConditionalTransactions: String!
-  operatorAccountID: String!
+  protocolFeeTakerBips: Int!
+  protocolFeeMakerBips: Int!
+  numConditionalTransactions: Int!
+  operatorAccountID: Int!
+
+  operatorAccount: Account!
 
   transactions: [Transaction!]! @derivedFrom(field:"block")
 }
@@ -222,8 +224,28 @@ type SpotTrade implements Transaction @entity {
   fFillSA: Int!
   fFillSB: Int!
 
+  fillSA: BigInt!
+  fillSB: BigInt!
+
   orderDataA: Int!
   orderDataB: Int!
+
+  limitMaskA: BigInt!
+  feeBipsA: BigInt!
+  fillAmountBorSA: Boolean!
+
+  limitMaskB: BigInt!
+  feeBipsB: BigInt!
+  fillAmountBorSB: Boolean!
+
+  fillBA: BigInt!
+  fillBB: BigInt!
+
+  feeA: BigInt!
+  protocolFeeA: BigInt!
+
+  feeB: BigInt!
+  protocolFeeB: BigInt!
 }
 
 type AccountUpdate implements Transaction @entity {

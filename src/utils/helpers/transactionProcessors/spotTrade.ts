@@ -6,7 +6,14 @@ import {
   Pool
 } from "../../../../generated/schema";
 import { BigInt, Address, Bytes } from "@graphprotocol/graph-ts";
-import { extractData, extractBigInt, extractInt, extractBigIntFromFloat } from "../data";
+import {
+  extractData,
+  extractBigInt,
+  extractInt,
+  extractBigIntFromFloat,
+  stringBytesToI32,
+  stringBytesToBigInt
+} from "../data";
 import {
   getOrCreateUser,
   getOrCreatePool,
@@ -14,6 +21,7 @@ import {
   intToString,
   getOrCreateAccountTokenBalance
 } from "../index";
+import { BIGINT_ZERO } from "../../constants";
 
 // interface SettlementValues {
 //   fillSA: BN;
@@ -239,8 +247,10 @@ export function processSpotTrade(id: String, data: String, block: Block): void {
 
   // Fills
   transaction.fFillSA = extractInt(data, offset, 3);
+  transaction.fillSA = extractBigIntFromFloat(data, offset, 3, 5, 19, 10);
   offset += 3;
   transaction.fFillSB = extractInt(data, offset, 3);
+  transaction.fillSB = extractBigIntFromFloat(data, offset, 3, 5, 19, 10);
   offset += 3;
 
   // Order data
@@ -251,8 +261,8 @@ export function processSpotTrade(id: String, data: String, block: Block): void {
 
   // There's no need to create the accounts, they don't need to be updated
   // and they can't be created first during a SpotTrade transaction.
-  let accountAID = intToString(transaction.accountIdA)
-  let accountBID = intToString(transaction.accountIdB)
+  let accountAID = intToString(transaction.accountIdA);
+  let accountBID = intToString(transaction.accountIdB);
 
   let tokenA = getToken(intToString(transaction.tokenIDA)) as Token;
   let tokenB = getToken(intToString(transaction.tokenIDB)) as Token;
@@ -262,5 +272,84 @@ export function processSpotTrade(id: String, data: String, block: Block): void {
   transaction.tokenA = tokenA.id;
   transaction.tokenB = tokenB.id;
 
+  // Further extraction of packed data
+  transaction.limitMaskA =
+    BigInt.fromI32(transaction.orderDataA) & stringBytesToBigInt("0b10000000");
+  transaction.feeBipsA =
+    BigInt.fromI32(transaction.orderDataA) & stringBytesToBigInt("0b00111111");
+  transaction.fillAmountBorSA = transaction.limitMaskA > BIGINT_ZERO;
+
+  transaction.limitMaskB =
+    BigInt.fromI32(transaction.orderDataB) & stringBytesToBigInt("0b10000000");
+  transaction.feeBipsB =
+    BigInt.fromI32(transaction.orderDataB) & stringBytesToBigInt("0b00111111");
+  transaction.fillAmountBorSB = transaction.limitMaskB > BIGINT_ZERO;
+
+  // settlement values
+  transaction.fillBA = transaction.fillSB;
+  transaction.fillBB = transaction.fillSA;
+
+  transaction.feeA = calculateFee(transaction.fillBA, transaction.feeBipsA);
+  transaction.protocolFeeA = calculateProtocolFee(
+    transaction.fillBA,
+    block.protocolFeeTakerBips
+  );
+
+  transaction.feeB = calculateFee(transaction.fillBB, transaction.feeBipsB);
+  transaction.protocolFeeB = calculateProtocolFee(
+    transaction.fillBB,
+    block.protocolFeeMakerBips
+  );
+
+  // Update token balances for account A
+  let accountTokenBalanceAA = getOrCreateAccountTokenBalance(
+    accountAID,
+    tokenA.id
+  );
+  accountTokenBalanceAA.balance = accountTokenBalanceAA.balance.minus(
+    transaction.fillSA
+  );
+
+  let accountTokenBalanceAB = getOrCreateAccountTokenBalance(
+    accountAID,
+    tokenB.id
+  );
+  accountTokenBalanceAB.balance = accountTokenBalanceAB.balance
+    .plus(transaction.fillBA)
+    .minus(transaction.feeA);
+
+  // Update token balances for account B
+  let accountTokenBalanceBA = getOrCreateAccountTokenBalance(
+    accountBID,
+    tokenA.id
+  );
+  accountTokenBalanceBA.balance = accountTokenBalanceBA.balance.minus(
+    transaction.fillSB
+  );
+
+  let accountTokenBalanceBB = getOrCreateAccountTokenBalance(
+    accountBID,
+    tokenB.id
+  );
+  accountTokenBalanceBB.balance = accountTokenBalanceBB.balance
+    .plus(transaction.fillBB)
+    .minus(transaction.feeB);
+
+  // Should also update operator account balance
+
+  accountTokenBalanceAA.save();
+  accountTokenBalanceAB.save();
+  accountTokenBalanceBA.save();
+  accountTokenBalanceBB.save();
   transaction.save();
+}
+
+function calculateFee(fillB: BigInt, feeBips: BigInt): BigInt {
+  return fillB.times(feeBips).div(BigInt.fromI32(10000));
+}
+
+function calculateProtocolFee(fillB: BigInt, protocolFeeBips: i32): BigInt {
+  return fillB
+    .times(BigInt.fromI32(protocolFeeBips))
+    .div(BigInt.fromI32(100000));
 }
