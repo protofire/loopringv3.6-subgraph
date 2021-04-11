@@ -65,17 +65,18 @@ export function processSignatureVerification(
   transaction.verificationData = extractData(data, offset, 32);
   offset += 32;
 
+  let accountId = intToString(transaction.accountID)
+
   if (transaction.accountID > 10000) {
-    let account = getOrCreateUser(intToString(transaction.accountID));
+    let account = getOrCreateUser(accountId, transaction.id);
     account.address = Address.fromString(transaction.owner) as Bytes;
     account.save();
-    transaction.account = account.id;
   } else {
-    let account = getOrCreatePool(intToString(transaction.accountID));
+    let account = getOrCreatePool(accountId, transaction.id);
     account.address = Address.fromString(transaction.owner) as Bytes;
     account.save();
-    transaction.account = account.id;
   }
 
+  transaction.account = accountId;
   transaction.save();
 }

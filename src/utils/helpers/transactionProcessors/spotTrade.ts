@@ -19,7 +19,8 @@ import {
   getOrCreatePool,
   getToken,
   intToString,
-  getOrCreateAccountTokenBalance
+  getOrCreateAccountTokenBalance,
+  getProtocolAccount
 } from "../index";
 import { BIGINT_ZERO } from "../../constants";
 
@@ -319,24 +320,65 @@ export function processSpotTrade(id: String, data: String, block: Block): void {
     .minus(transaction.feeA);
 
   // Update token balances for account B
-  let accountTokenBalanceBA = getOrCreateAccountTokenBalance(
-    accountBID,
-    tokenA.id
-  );
-  accountTokenBalanceBA.balance = accountTokenBalanceBA.balance.minus(
-    transaction.fillSB
-  );
-
   let accountTokenBalanceBB = getOrCreateAccountTokenBalance(
     accountBID,
     tokenB.id
   );
-  accountTokenBalanceBB.balance = accountTokenBalanceBB.balance
+  accountTokenBalanceBB.balance = accountTokenBalanceBB.balance.minus(
+    transaction.fillSB
+  );
+
+  let accountTokenBalanceBA = getOrCreateAccountTokenBalance(
+    accountBID,
+    tokenA.id
+  );
+  accountTokenBalanceBA.balance = accountTokenBalanceBA.balance
     .plus(transaction.fillBB)
     .minus(transaction.feeB);
 
   // Should also update operator account balance
+  let operatorId = intToString(block.operatorAccountID);
 
+  let operatorTokenBalanceA = getOrCreateAccountTokenBalance(
+    operatorId,
+    tokenA.id
+  );
+  operatorTokenBalanceA.balance = operatorTokenBalanceA.balance
+    .plus(transaction.feeB)
+    .minus(transaction.protocolFeeB);
+
+  let operatorTokenBalanceB = getOrCreateAccountTokenBalance(
+    operatorId,
+    tokenB.id
+  );
+  operatorTokenBalanceB.balance = operatorTokenBalanceB.balance
+    .plus(transaction.feeA)
+    .minus(transaction.protocolFeeA);
+
+  // update protocol balance
+  let protocolAccount = getProtocolAccount(transaction.id);
+
+  let protocolTokenBalanceA = getOrCreateAccountTokenBalance(
+    protocolAccount.id,
+    tokenA.id
+  );
+  protocolTokenBalanceA.balance = protocolTokenBalanceA.balance.plus(
+    transaction.protocolFeeB
+  );
+
+  let protocolTokenBalanceB = getOrCreateAccountTokenBalance(
+    protocolAccount.id,
+    tokenB.id
+  );
+  protocolTokenBalanceB.balance = protocolTokenBalanceB.balance.plus(
+    transaction.protocolFeeA
+  );
+
+  protocolAccount.save();
+  protocolTokenBalanceA.save();
+  protocolTokenBalanceB.save();
+  operatorTokenBalanceA.save();
+  operatorTokenBalanceB.save();
   accountTokenBalanceAA.save();
   accountTokenBalanceAB.save();
   accountTokenBalanceBA.save();

@@ -6,7 +6,7 @@ type Proxy @entity {
   currentImplementation: Exchange
 
   "List of all historical Exchange entities (implementations)"
-  implementations: [Exchange!]! @derivedFrom(field:"proxy")
+  implementations: [Exchange!]! @derivedFrom(field: "proxy")
 
   "Total amount of block processed"
   blockCount: BigInt!
@@ -74,7 +74,7 @@ type Block @entity {
 
   operatorAccount: Account!
 
-  transactions: [Transaction!]! @derivedFrom(field:"block")
+  transactions: [Transaction!]! @derivedFrom(field: "block")
 }
 
 interface Account {
@@ -82,7 +82,11 @@ interface Account {
 
   address: Bytes!
 
-  balances: [AccountTokenBalance!]! @derivedFrom(field:"account")
+  balances: [AccountTokenBalance!]! @derivedFrom(field: "account")
+
+  createdAt: Transaction!
+
+  lastUpdatedAt: Transaction!
 }
 
 type User implements Account @entity {
@@ -91,7 +95,13 @@ type User implements Account @entity {
 
   address: Bytes!
 
-  balances: [AccountTokenBalance!]! @derivedFrom(field:"account")
+  publicKey: String
+
+  balances: [AccountTokenBalance!]! @derivedFrom(field: "account")
+
+  createdAt: Transaction!
+
+  lastUpdatedAt: Transaction!
 }
 
 type Pool implements Account @entity {
@@ -100,7 +110,26 @@ type Pool implements Account @entity {
 
   address: Bytes!
 
-  balances: [AccountTokenBalance!]! @derivedFrom(field:"account")
+  feeBipsAMM: Int
+
+  balances: [AccountTokenBalance!]! @derivedFrom(field: "account")
+
+  createdAt: Transaction!
+
+  lastUpdatedAt: Transaction!
+}
+
+type ProtocolAccount implements Account @entity {
+  "ID is always 0 since there's only a single ProtocolAccount and uses the reserved id 0"
+  id: ID!
+
+  address: Bytes!
+
+  balances: [AccountTokenBalance!]! @derivedFrom(field: "account")
+
+  createdAt: Transaction!
+
+  lastUpdatedAt: Transaction!
 }
 
 type AccountTokenBalance @entity {

@@ -1,8 +1,9 @@
-import { log, BigInt } from "@graphprotocol/graph-ts";
+import { log, BigInt, ethereum } from "@graphprotocol/graph-ts";
 import {
   TokenRegistered,
   SubmitBlocksCall,
-  SubmitBlocks1Call
+  SubmitBlocks1Call,
+  SubmitBlocksCallBlocksStruct
 } from "../../generated/OwnedUpgradabilityProxy/OwnedUpgradabilityProxy";
 import { Block } from "../../generated/schema";
 import {
@@ -26,44 +27,15 @@ export function handleTokenRegistered(event: TokenRegistered): void {
 }
 
 export function handleSubmitBlocksV1(call: SubmitBlocksCall): void {
-  let proxy = getProxy();
-  let blockArray = call.inputs.blocks;
-
-  for (let i = 0; i < blockArray.length; i++) {
-    proxy.blockCount = proxy.blockCount.plus(BIGINT_ONE);
-
-    let blockData = blockArray[i];
-    let block = getOrCreateBlock(proxy.blockCount.toString());
-
-    // metadata
-    block.operator = call.transaction.from.toHexString();
-    block.txHash = call.transaction.hash.toHexString();
-    block.gasUsed = call.transaction.gasUsed;
-    block.gasPrice = call.transaction.gasPrice;
-    block.height = call.block.number;
-    block.timestamp = call.block.timestamp;
-    block.blockHash = call.block.hash.toHexString();
-
-    // raw data except auxiliary data
-    block.blockType = blockData.blockType;
-    block.blockSize = blockData.blockSize;
-    block.blockVersion = blockData.blockVersion;
-    block.data = blockData.data.toHexString();
-    block.proof = blockData.proof;
-    block.storeBlockInfoOnchain = blockData.storeBlockInfoOnchain;
-    block.offchainData = blockData.offchainData;
-
-    block = processBlockData(block as Block);
-
-    block.save();
-  }
-
-  proxy.save();
+  handleSubmitBlocks(call as ethereum.Call, call.inputs.blocks as Array<SubmitBlocksCallBlocksStruct>);
 }
 
 export function handleSubmitBlocksV2(call: SubmitBlocks1Call): void {
+  handleSubmitBlocks(call as ethereum.Call, call.inputs.blocks as Array<SubmitBlocksCallBlocksStruct>);
+}
+
+function handleSubmitBlocks(call: ethereum.Call, blockArray: Array<SubmitBlocksCallBlocksStruct>): void {
   let proxy = getProxy();
-  let blockArray = call.inputs.blocks;
 
   for (let i = 0; i < blockArray.length; i++) {
     proxy.blockCount = proxy.blockCount.plus(BIGINT_ONE);

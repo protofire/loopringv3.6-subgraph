@@ -6,7 +6,12 @@ import {
   Pool
 } from "../../../../generated/schema";
 import { BigInt, Address, Bytes } from "@graphprotocol/graph-ts";
-import { extractData, extractBigInt, extractInt, extractBigIntFromFloat } from "../data";
+import {
+  extractData,
+  extractBigInt,
+  extractInt,
+  extractBigIntFromFloat
+} from "../data";
 import {
   getOrCreateUser,
   getOrCreatePool,
@@ -131,45 +136,63 @@ export function processTransfer(id: String, data: String, block: Block): void {
   transaction.from = extractData(data, offset, 20);
   offset += 20;
 
-  let fromAccountId = intToString(transaction.accountFromID)
-  let toAccountId = intToString(transaction.accountToID)
+  let fromAccountId = intToString(transaction.accountFromID);
+  let toAccountId = intToString(transaction.accountToID);
 
   let token = getToken(intToString(transaction.tokenID)) as Token;
   let feeToken = getToken(intToString(transaction.feeTokenID)) as Token;
 
   // Token transfer balance calculations
-  let fromAccountTokenBalance = getOrCreateAccountTokenBalance(fromAccountId, token.id);
+  let fromAccountTokenBalance = getOrCreateAccountTokenBalance(
+    fromAccountId,
+    token.id
+  );
   fromAccountTokenBalance.balance = fromAccountTokenBalance.balance.minus(
     transaction.amount
   );
 
-  let toAccountTokenBalance = getOrCreateAccountTokenBalance(toAccountId, token.id);
+  let toAccountTokenBalance = getOrCreateAccountTokenBalance(
+    toAccountId,
+    token.id
+  );
   toAccountTokenBalance.balance = toAccountTokenBalance.balance.plus(
     transaction.amount
   );
 
   // Fee token balance calculation
-  let fromAccountTokenFeeBalance = getOrCreateAccountTokenBalance(fromAccountId, feeToken.id);
+  let fromAccountTokenFeeBalance = getOrCreateAccountTokenBalance(
+    fromAccountId,
+    feeToken.id
+  );
   fromAccountTokenBalance.balance = fromAccountTokenBalance.balance.minus(
     transaction.fee
   );
 
+  // Operator update
+  let operatorTokenFeeBalance = getOrCreateAccountTokenBalance(
+    intToString(block.operatorAccountID),
+    feeToken.id
+  );
+  operatorTokenFeeBalance.balance = operatorTokenFeeBalance.balance.plus(
+    transaction.fee
+  );
+
   if (transaction.accountFromID > 10000) {
-    let fromAccount = getOrCreateUser(fromAccountId);
+    let fromAccount = getOrCreateUser(fromAccountId, transaction.id);
     fromAccount.address = Address.fromString(transaction.from) as Bytes;
     fromAccount.save();
   } else {
-    let fromAccount = getOrCreatePool(fromAccountId);
+    let fromAccount = getOrCreatePool(fromAccountId, transaction.id);
     fromAccount.address = Address.fromString(transaction.from) as Bytes;
     fromAccount.save();
   }
 
   if (transaction.accountToID > 10000) {
-    let toAccount = getOrCreateUser(toAccountId);
+    let toAccount = getOrCreateUser(toAccountId, transaction.id);
     toAccount.address = Address.fromString(transaction.to) as Bytes;
     toAccount.save();
   } else {
-    let toAccount = getOrCreatePool(toAccountId);
+    let toAccount = getOrCreatePool(toAccountId, transaction.id);
     toAccount.address = Address.fromString(transaction.to) as Bytes;
     toAccount.save();
   }
@@ -179,5 +202,9 @@ export function processTransfer(id: String, data: String, block: Block): void {
   transaction.token = token.id;
   transaction.feeToken = feeToken.id;
 
+  operatorTokenFeeBalance.save();
+  fromAccountTokenBalance.save();
+  toAccountTokenBalance.save();
+  fromAccountTokenFeeBalance.save();
   transaction.save();
 }

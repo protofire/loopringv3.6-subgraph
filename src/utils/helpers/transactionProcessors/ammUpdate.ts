@@ -80,9 +80,12 @@ export function processAmmUpdate(id: String, data: String, block: Block): void {
   transaction.balance = extractBigInt(data, offset, 12);
   offset += 12;
 
-  let pool = getOrCreatePool(intToString(transaction.accountID));
+  let pool = getOrCreatePool(
+    intToString(transaction.accountID),
+    transaction.id
+  );
   pool.address = Address.fromString(transaction.owner) as Bytes;
-  // TO-DO Update the rest of the pool parameters here.
+  pool.feeBipsAMM = transaction.feeBips;
 
   transaction.pool = pool.id;
 

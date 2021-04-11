@@ -139,18 +139,29 @@ export function processWithdrawal(
   );
 
   if (transaction.fromAccountID > 10000) {
-    let account = getOrCreateUser(accountId);
+    let account = getOrCreateUser(accountId, transaction.id);
     account.address = Address.fromString(transaction.from) as Bytes;
     account.save();
   } else {
-    let account = getOrCreatePool(accountId);
+    let account = getOrCreatePool(accountId, transaction.id);
     account.address = Address.fromString(transaction.from) as Bytes;
     account.save();
   }
+
+  let operatorTokenFeeBalance = getOrCreateAccountTokenBalance(
+    intToString(block.operatorAccountID),
+    feeToken.id
+  );
+  operatorTokenFeeBalance.balance = operatorTokenFeeBalance.balance.plus(
+    transaction.fee
+  );
 
   transaction.fromAccount = accountId;
   transaction.token = token.id;
   transaction.feeToken = feeToken.id;
 
+  accountTokenFeeBalance.save();
+  accountTokenBalance.save();
+  operatorTokenFeeBalance.save();
   transaction.save();
 }

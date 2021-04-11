@@ -86,11 +86,11 @@ export function processDeposit(id: String, data: String, block: Block): void {
   );
 
   if (transaction.toAccountID > 10000) {
-    let account = getOrCreateUser(accountId);
+    let account = getOrCreateUser(accountId, transaction.id);
     account.address = Address.fromString(transaction.to) as Bytes;
     account.save();
   } else {
-    let account = getOrCreatePool(accountId);
+    let account = getOrCreatePool(accountId, transaction.id);
     account.address = Address.fromString(transaction.to) as Bytes;
     account.save();
   }

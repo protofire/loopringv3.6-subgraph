@@ -1,29 +1,43 @@
-import { Pool, User, AccountTokenBalance } from "../../../generated/schema";
-import { BigInt } from "@graphprotocol/graph-ts";
+import {
+  Pool,
+  User,
+  AccountTokenBalance,
+  ProtocolAccount
+} from "../../../generated/schema";
+import { BigInt, Address, Bytes } from "@graphprotocol/graph-ts";
 import { compoundId } from "./util";
+import { ZERO_ADDRESS } from "../constants";
 
 export function getOrCreateUser(
   id: String,
+  transactionId: String,
   createIfNotFound: boolean = true
 ): User {
   let user = User.load(id);
 
   if (user == null && createIfNotFound) {
     user = new User(id);
+    user.createdAt = transactionId;
   }
+
+  user.lastUpdatedAt = transactionId;
 
   return user as User;
 }
 
 export function getOrCreatePool(
   id: String,
+  transactionId: String,
   createIfNotFound: boolean = true
 ): Pool {
   let pool = Pool.load(id);
 
   if (pool == null && createIfNotFound) {
     pool = new Pool(id);
+    pool.createdAt = transactionId;
   }
+
+  pool.lastUpdatedAt = transactionId;
 
   return pool as Pool;
 }
@@ -44,4 +58,18 @@ export function getOrCreateAccountTokenBalance(
   }
 
   return balance as AccountTokenBalance;
+}
+
+export function getProtocolAccount(transactionId: String): ProtocolAccount {
+  let account = ProtocolAccount.load("0");
+
+  if (account == null) {
+    account = new ProtocolAccount("0");
+    account.address = Address.fromString(ZERO_ADDRESS) as Bytes;
+    account.createdAt = transactionId;
+  }
+
+  account.lastUpdatedAt = transactionId;
+
+  return account as ProtocolAccount;
 }
