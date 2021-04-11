@@ -43,8 +43,6 @@ type Token @entity {
 type Block @entity {
   id: ID!
 
-  operator: String!
-
   txHash: String!
 
   gasUsed: BigInt!

@@ -44,7 +44,6 @@ function handleSubmitBlocks(call: ethereum.Call, blockArray: Array<SubmitBlocksC
     let block = getOrCreateBlock(proxy.blockCount.toString());
 
     // metadata
-    block.operator = call.transaction.from.toHexString();
     block.txHash = call.transaction.hash.toHexString();
     block.gasUsed = call.transaction.gasUsed;
     block.gasPrice = call.transaction.gasPrice;
