@@ -7,8 +7,7 @@ import {
 import { BigInt, Address, Bytes } from "@graphprotocol/graph-ts";
 import { extractData, extractBigInt, extractInt } from "../data";
 import {
-  getOrCreateUser,
-  getOrCreatePool,
+  createIfNewAccount,
   getToken,
   intToString
 } from "../index";
@@ -67,15 +66,7 @@ export function processSignatureVerification(
 
   let accountId = intToString(transaction.accountID)
 
-  if (transaction.accountID > 10000) {
-    let account = getOrCreateUser(accountId, transaction.id);
-    account.address = Address.fromString(transaction.owner) as Bytes;
-    account.save();
-  } else {
-    let account = getOrCreatePool(accountId, transaction.id);
-    account.address = Address.fromString(transaction.owner) as Bytes;
-    account.save();
-  }
+  createIfNewAccount(transaction.accountID, transaction.id, transaction.owner);
 
   transaction.account = accountId;
   transaction.save();

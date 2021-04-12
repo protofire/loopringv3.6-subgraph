@@ -15,8 +15,6 @@ import {
   stringBytesToBigInt
 } from "../data";
 import {
-  getOrCreateUser,
-  getOrCreatePool,
   getToken,
   intToString,
   getOrCreateAccountTokenBalance,

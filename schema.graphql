@@ -232,10 +232,14 @@ type SpotTrade implements Transaction @entity {
 
   block: Block!
 
+  "Account A data"
   accountA: Account!
+  "Account B data"
   accountB: Account!
 
+  "Token A. Supplied by Account A"
   tokenA: Token!
+  "Token B. Supplied by Account B"
   tokenB: Token!
 
   # Raw data parsed from the L2 data
@@ -251,7 +255,9 @@ type SpotTrade implements Transaction @entity {
   fFillSA: Int!
   fFillSB: Int!
 
+  "Amount of token A sold by Account A"
   fillSA: BigInt!
+  "Amount of token B sold by Account B"
   fillSB: BigInt!
 
   orderDataA: Int!
@@ -265,12 +271,16 @@ type SpotTrade implements Transaction @entity {
   feeBipsB: BigInt!
   fillAmountBorSB: Boolean!
 
+  "Amount of token B bought by Account A"
   fillBA: BigInt!
+  "Amount of token A bought by Account B"
   fillBB: BigInt!
 
+  "Fee paid by Account A with Token B"
   feeA: BigInt!
   protocolFeeA: BigInt!
 
+  "Fee paid by Account B with token A"
   feeB: BigInt!
   protocolFeeB: BigInt!
 }

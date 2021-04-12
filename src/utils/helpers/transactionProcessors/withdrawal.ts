@@ -8,8 +8,7 @@ import {
 import { BigInt, Address, Bytes } from "@graphprotocol/graph-ts";
 import { extractData, extractBigInt, extractInt, extractBigIntFromFloat } from "../data";
 import {
-  getOrCreateUser,
-  getOrCreatePool,
+  createIfNewAccount,
   getToken,
   intToString,
   getOrCreateAccountTokenBalance
@@ -138,15 +137,7 @@ export function processWithdrawal(
     transaction.fee
   );
 
-  if (transaction.fromAccountID > 10000) {
-    let account = getOrCreateUser(accountId, transaction.id);
-    account.address = Address.fromString(transaction.from) as Bytes;
-    account.save();
-  } else {
-    let account = getOrCreatePool(accountId, transaction.id);
-    account.address = Address.fromString(transaction.from) as Bytes;
-    account.save();
-  }
+  createIfNewAccount(transaction.fromAccountID, transaction.id, transaction.from);
 
   let operatorTokenFeeBalance = getOrCreateAccountTokenBalance(
     intToString(block.operatorAccountID),

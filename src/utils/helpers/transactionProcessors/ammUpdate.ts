@@ -82,10 +82,11 @@ export function processAmmUpdate(id: String, data: String, block: Block): void {
 
   let pool = getOrCreatePool(
     intToString(transaction.accountID),
-    transaction.id
+    transaction.id,
+    transaction.owner
   );
-  pool.address = Address.fromString(transaction.owner) as Bytes;
   pool.feeBipsAMM = transaction.feeBips;
+  pool.lastUpdatedAt = transaction.id;
 
   transaction.pool = pool.id;
 

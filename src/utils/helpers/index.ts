@@ -8,7 +8,8 @@ export {
   getOrCreateUser,
   getOrCreatePool,
   getOrCreateAccountTokenBalance,
-  getProtocolAccount
+  getProtocolAccount,
+  createIfNewAccount
 } from "./account";
 
 export { getProxy, getOrCreateExchange } from "./upgradabilityProxy";

@@ -110,10 +110,11 @@ export function processAccountUpdate(
 
   let user = getOrCreateUser(
     intToString(transaction.accountID),
-    transaction.id
+    transaction.id,
+    transaction.owner
   );
-  user.address = Address.fromString(transaction.owner) as Bytes;
   user.publicKey = transaction.publicKey;
+  user.lastUpdatedAt = transaction.id;
 
   let feeToken = getToken(intToString(transaction.feeTokenID)) as Token;
 

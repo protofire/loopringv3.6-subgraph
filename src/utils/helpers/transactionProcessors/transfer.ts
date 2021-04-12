@@ -13,8 +13,7 @@ import {
   extractBigIntFromFloat
 } from "../data";
 import {
-  getOrCreateUser,
-  getOrCreatePool,
+  createIfNewAccount,
   getToken,
   intToString,
   getOrCreateAccountTokenBalance
@@ -177,25 +176,8 @@ export function processTransfer(id: String, data: String, block: Block): void {
     transaction.fee
   );
 
-  if (transaction.accountFromID > 10000) {
-    let fromAccount = getOrCreateUser(fromAccountId, transaction.id);
-    fromAccount.address = Address.fromString(transaction.from) as Bytes;
-    fromAccount.save();
-  } else {
-    let fromAccount = getOrCreatePool(fromAccountId, transaction.id);
-    fromAccount.address = Address.fromString(transaction.from) as Bytes;
-    fromAccount.save();
-  }
-
-  if (transaction.accountToID > 10000) {
-    let toAccount = getOrCreateUser(toAccountId, transaction.id);
-    toAccount.address = Address.fromString(transaction.to) as Bytes;
-    toAccount.save();
-  } else {
-    let toAccount = getOrCreatePool(toAccountId, transaction.id);
-    toAccount.address = Address.fromString(transaction.to) as Bytes;
-    toAccount.save();
-  }
+  createIfNewAccount(transaction.accountFromID, transaction.id, transaction.from);
+  createIfNewAccount(transaction.accountToID, transaction.id, transaction.to);
 
   transaction.toAccount = toAccountId;
   transaction.fromAccount = fromAccountId;

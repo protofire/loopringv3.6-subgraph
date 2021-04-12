@@ -5,12 +5,13 @@ import {
   ProtocolAccount
 } from "../../../generated/schema";
 import { BigInt, Address, Bytes } from "@graphprotocol/graph-ts";
-import { compoundId } from "./util";
+import { compoundId, intToString } from "./util";
 import { ZERO_ADDRESS } from "../constants";
 
 export function getOrCreateUser(
   id: String,
   transactionId: String,
+  addressString: String,
   createIfNotFound: boolean = true
 ): User {
   let user = User.load(id);
@@ -18,9 +19,11 @@ export function getOrCreateUser(
   if (user == null && createIfNotFound) {
     user = new User(id);
     user.createdAt = transactionId;
-  }
+    user.lastUpdatedAt = transactionId;
+    user.address = Address.fromString(addressString) as Bytes;
 
-  user.lastUpdatedAt = transactionId;
+    user.save();
+  }
 
   return user as User;
 }
@@ -28,6 +31,7 @@ export function getOrCreateUser(
 export function getOrCreatePool(
   id: String,
   transactionId: String,
+  addressString: String,
   createIfNotFound: boolean = true
 ): Pool {
   let pool = Pool.load(id);
@@ -35,9 +39,11 @@ export function getOrCreatePool(
   if (pool == null && createIfNotFound) {
     pool = new Pool(id);
     pool.createdAt = transactionId;
-  }
+    pool.lastUpdatedAt = transactionId;
+    pool.address = Address.fromString(addressString) as Bytes;
 
-  pool.lastUpdatedAt = transactionId;
+    pool.save();
+  }
 
   return pool as Pool;
 }
@@ -67,9 +73,22 @@ export function getProtocolAccount(transactionId: String): ProtocolAccount {
     account = new ProtocolAccount("0");
     account.address = Address.fromString(ZERO_ADDRESS) as Bytes;
     account.createdAt = transactionId;
+    account.lastUpdatedAt = transactionId;
+
+    account.save();
   }
 
-  account.lastUpdatedAt = transactionId;
-
   return account as ProtocolAccount;
+}
+
+export function createIfNewAccount(
+  accountId: i32,
+  transactionId: String,
+  addressString: String
+): void {
+  if (accountId > 10000) {
+    getOrCreateUser(intToString(accountId), transactionId, addressString);
+  } else {
+    getOrCreatePool(intToString(accountId), transactionId, addressString);
+  }
 }
