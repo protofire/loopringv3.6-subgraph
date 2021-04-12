@@ -1,11 +1,9 @@
-import { Token } from "../../../generated/schema";
+import { Token, Pair } from "../../../generated/schema";
 import { ERC20 } from "../../../generated/OwnedUpgradabilityProxy/ERC20";
 import { Address, BigInt, log } from "@graphprotocol/graph-ts";
-import { DEFAULT_DECIMALS } from "../../utils/decimals";
-import {
-  BIGINT_ZERO,
-  BIGDECIMAL_ZERO
-} from "../../utils/constants";
+import { DEFAULT_DECIMALS } from "../decimals";
+import { BIGINT_ZERO, BIGDECIMAL_ZERO } from "../constants";
+import { intToString, compoundId } from "./index";
 
 export function getOrCreateToken(
   tokenId: String,
@@ -49,4 +47,48 @@ export function getToken(tokenId: String): Token | null {
   }
 
   return token;
+}
+
+export function getOrCreatePair(
+  tokenAId: i32,
+  tokenBId: i32,
+  createIfNotFound: boolean = true
+): Pair {
+  let id = "";
+  let tokenAStringId = intToString(tokenAId);
+  let tokenBStringId = intToString(tokenBId);
+
+  // Calculate standardized id
+  if (tokenAId < tokenBId) {
+    id = compoundId(tokenAStringId, tokenBStringId);
+  } else {
+    id = compoundId(tokenBStringId, tokenAStringId);
+  }
+
+  let pair = Pair.load(id);
+
+  if (pair == null && createIfNotFound) {
+    pair = new Pair(id);
+
+    // Link them in the same order as the ID.
+    if (tokenAId < tokenBId) {
+      pair.token0 = tokenAStringId;
+      pair.token1 = tokenBStringId;
+    } else {
+      pair.token0 = tokenBStringId;
+      pair.token1 = tokenAStringId;
+    }
+  }
+
+  return pair as Pair;
+}
+
+// Calculates price of token A denominated in token B based on amounts traded
+export function calculatePrice(
+  tokenA: Token,
+  amountA: BigInt,
+  amountB: BigInt
+): BigInt {
+  let baseUnitTokenA = BigInt.fromI32(10).pow(tokenA.decimals as u8);
+  return (baseUnitTokenA * amountB) / amountA;
 }

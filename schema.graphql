@@ -40,6 +40,23 @@ type Token @entity {
   symbol: String!
 }
 
+type Pair @entity {
+  "ID is recreated following the next pattern to standardize pair IDs: <LOWEST Token ID>-<HIGHEST Token ID>"
+  id: ID!
+
+  token0: Token!
+
+  token1: Token!
+
+  "Last price of Token 0. Denominated in Token 1"
+  token0Price: BigInt!
+
+  "Last price of Token 1. Denominated in Token 0"
+  token1Price: BigInt!
+
+  trades: [SpotTrade!]! @derivedFrom(field: "pair")
+}
+
 type Block @entity {
   id: ID!
 
@@ -241,6 +258,13 @@ type SpotTrade implements Transaction @entity {
   tokenA: Token!
   "Token B. Supplied by Account B"
   tokenB: Token!
+
+  "Price for 1 unit of token A for this trade. Denominated in token B"
+  tokenAPrice: BigInt!
+  "Price for 1 unit of token B for this trade. Denominated in token A"
+  tokenBPrice: BigInt!
+
+  pair: Pair!
 
   # Raw data parsed from the L2 data
   storageIdA: Int!

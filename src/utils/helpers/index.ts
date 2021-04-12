@@ -2,7 +2,12 @@ export { getOrCreateBlock, processBlockData } from "./block";
 
 export { processTransactionData } from "./transaction";
 
-export { getOrCreateToken, getToken } from "./token";
+export {
+  getOrCreateToken,
+  getToken,
+  getOrCreatePair,
+  calculatePrice
+} from "./token";
 
 export {
   getOrCreateUser,

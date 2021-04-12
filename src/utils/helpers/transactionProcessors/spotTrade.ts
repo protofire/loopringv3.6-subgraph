@@ -18,7 +18,9 @@ import {
   getToken,
   intToString,
   getOrCreateAccountTokenBalance,
-  getProtocolAccount
+  getProtocolAccount,
+  getOrCreatePair,
+  calculatePrice
 } from "../index";
 import { BIGINT_ZERO } from "../../constants";
 
@@ -372,6 +374,31 @@ export function processSpotTrade(id: String, data: String, block: Block): void {
     transaction.protocolFeeA
   );
 
+  // Update pair info
+  transaction.tokenAPrice = calculatePrice(
+    tokenA as Token,
+    transaction.fillSA,
+    transaction.fillSB
+  );
+  transaction.tokenBPrice = calculatePrice(
+    tokenB as Token,
+    transaction.fillSB,
+    transaction.fillSA
+  );
+
+  let pair = getOrCreatePair(transaction.tokenIDA, transaction.tokenIDB);
+  pair.token0Price =
+    transaction.tokenIDA < transaction.tokenIDB
+      ? transaction.tokenAPrice
+      : transaction.tokenBPrice;
+  pair.token1Price =
+    transaction.tokenIDA < transaction.tokenIDB
+      ? transaction.tokenBPrice
+      : transaction.tokenAPrice;
+
+  transaction.pair = pair.id;
+
+  pair.save();
   protocolAccount.save();
   protocolTokenBalanceA.save();
   protocolTokenBalanceB.save();
