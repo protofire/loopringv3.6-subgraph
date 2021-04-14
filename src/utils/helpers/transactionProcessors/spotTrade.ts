@@ -405,7 +405,7 @@ export function processSpotTrade(id: String, data: String, block: Block): void {
       : pair.tradedVolumeToken1.plus(transaction.fillSA);
 
   tokenA.tradedVolume = tokenA.tradedVolume.plus(transaction.fillSA)
-  tokenB.tradedVolume = tokenA.tradedVolume.plus(transaction.fillSB)
+  tokenB.tradedVolume = tokenB.tradedVolume.plus(transaction.fillSB)
 
   transaction.pair = pair.id;
 
