@@ -395,9 +395,22 @@ export function processSpotTrade(id: String, data: String, block: Block): void {
     transaction.tokenIDA < transaction.tokenIDB
       ? transaction.tokenBPrice
       : transaction.tokenAPrice;
+  pair.tradedVolumeToken0 =
+    transaction.tokenIDA < transaction.tokenIDB
+      ? pair.tradedVolumeToken0.plus(transaction.fillSA)
+      : pair.tradedVolumeToken0.plus(transaction.fillSB);
+  pair.tradedVolumeToken1 =
+    transaction.tokenIDA < transaction.tokenIDB
+      ? pair.tradedVolumeToken1.plus(transaction.fillSB)
+      : pair.tradedVolumeToken1.plus(transaction.fillSA);
+
+  tokenA.tradedVolume = tokenA.tradedVolume.plus(transaction.fillSA)
+  tokenB.tradedVolume = tokenA.tradedVolume.plus(transaction.fillSB)
 
   transaction.pair = pair.id;
 
+  tokenA.save();
+  tokenB.save();
   pair.save();
   protocolAccount.save();
   protocolTokenBalanceA.save();

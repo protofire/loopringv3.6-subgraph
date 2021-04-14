@@ -38,6 +38,9 @@ type Token @entity {
   name: String!
 
   symbol: String!
+
+  "Total traded volume for this token across all token pairs. Denominated in it's own currency"
+  tradedVolume: BigInt!
 }
 
 type Pair @entity {
@@ -53,6 +56,12 @@ type Pair @entity {
 
   "Last price of Token 1. Denominated in Token 0"
   token1Price: BigInt!
+
+  "Total traded volume of token 0 within this pair. Denominated in it's own currency"
+  tradedVolumeToken0: BigInt!
+
+  "Total traded volume of token 1 within this pair. Denominated in it's own currency"
+  tradedVolumeToken1: BigInt!
 
   trades: [SpotTrade!]! @derivedFrom(field: "pair")
 }

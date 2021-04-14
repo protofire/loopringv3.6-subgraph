@@ -32,6 +32,8 @@ export function getOrCreateToken(
       token.name = "Ether";
       token.symbol = "ETH";
     }
+
+    token.tradedVolume = BIGINT_ZERO;
   }
 
   return token as Token;
@@ -78,6 +80,9 @@ export function getOrCreatePair(
       pair.token0 = tokenBStringId;
       pair.token1 = tokenAStringId;
     }
+
+    pair.tradedVolumeToken0 = BIGINT_ZERO
+    pair.tradedVolumeToken1 = BIGINT_ZERO
   }
 
   return pair as Pair;
