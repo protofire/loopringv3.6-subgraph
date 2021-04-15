@@ -1,5 +1,5 @@
 specVersion: 0.0.2
-description: Loopring 3.6 subgraph. Currently work in progress.
+description: Loopring Exchange V2 (Loopring 3.6) subgraph. Supports L2 Blocks and Transactions, as well as L2 accounts, balances and more. Currently work in progress.
 repository: https://github.com/protofire/loopringv3.6-subgraph
 schema:
   file: ./schema.graphql
@@ -20,8 +20,18 @@ dataSources:
         - Proxy
         - Exchange
         - Token
+        - Pair
         - User
         - Pool
+        - ProtocolAccount
+        - AccountTokenBalance
+        - Deposit
+        - Withdrawal
+        - Transfer
+        - SpotTrade
+        - AccountUpdate
+        - AmmUpdate
+        - SignatureVerification
       abis:
         - name: OwnedUpgradabilityProxy
           file: ./abis/OwnedUpgradabilityProxy.json
