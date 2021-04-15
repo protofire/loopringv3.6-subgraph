@@ -20,18 +20,8 @@ dataSources:
         - Proxy
         - Exchange
         - Token
-        - Pair
         - User
         - Pool
-        - ProtocolAccount
-        - AccountTokenBalance
-        - Deposit
-        - Withdrawal
-        - Transfer
-        - SpotTrade
-        - AccountUpdate
-        - AmmUpdate
-        - SignatureVerification
       abis:
         - name: OwnedUpgradabilityProxy
           file: ./abis/OwnedUpgradabilityProxy.json
