@@ -1,5 +1,6 @@
 import {
   SpotTrade,
+  Pair,
   Block,
   Token,
   User,
@@ -20,6 +21,10 @@ import {
   getOrCreateAccountTokenBalance,
   getProtocolAccount,
   getOrCreatePair,
+  getAndUpdateTokenDailyData,
+  getAndUpdateTokenWeeklyData,
+  getAndUpdatePairDailyData,
+  getAndUpdatePairWeeklyData,
   calculatePrice
 } from "../index";
 import { BIGINT_ZERO } from "../../constants";
@@ -387,28 +392,80 @@ export function processSpotTrade(id: String, data: String, block: Block): void {
   );
 
   let pair = getOrCreatePair(transaction.tokenIDA, transaction.tokenIDB);
-  pair.token0Price =
+
+  let token0Price =
     transaction.tokenIDA < transaction.tokenIDB
       ? transaction.tokenAPrice
       : transaction.tokenBPrice;
-  pair.token1Price =
+  let token1Price =
     transaction.tokenIDA < transaction.tokenIDB
       ? transaction.tokenBPrice
       : transaction.tokenAPrice;
-  pair.tradedVolumeToken0 =
+  let token0Amount =
     transaction.tokenIDA < transaction.tokenIDB
-      ? pair.tradedVolumeToken0.plus(transaction.fillSA)
-      : pair.tradedVolumeToken0.plus(transaction.fillSB);
-  pair.tradedVolumeToken1 =
+      ? transaction.fillSA
+      : transaction.fillSB;
+  let token1Amount =
     transaction.tokenIDA < transaction.tokenIDB
-      ? pair.tradedVolumeToken1.plus(transaction.fillSB)
-      : pair.tradedVolumeToken1.plus(transaction.fillSA);
+      ? transaction.fillSB
+      : transaction.fillSA;
 
-  tokenA.tradedVolume = tokenA.tradedVolume.plus(transaction.fillSA)
-  tokenB.tradedVolume = tokenB.tradedVolume.plus(transaction.fillSB)
+  pair.token0Price = token0Price;
+  pair.token1Price = token1Price;
+  pair.tradedVolumeToken0 = pair.tradedVolumeToken0.plus(token0Amount);
+  pair.tradedVolumeToken1 = pair.tradedVolumeToken1.plus(token1Amount);
+
+  tokenA.tradedVolume = tokenA.tradedVolume.plus(transaction.fillSA);
+  tokenB.tradedVolume = tokenB.tradedVolume.plus(transaction.fillSB);
 
   transaction.pair = pair.id;
 
+  let tokenADailyData = getAndUpdateTokenDailyData(
+    tokenA as Token,
+    block.timestamp
+  );
+  let tokenAWeeklyData = getAndUpdateTokenWeeklyData(
+    tokenA as Token,
+    block.timestamp
+  );
+  let tokenBDailyData = getAndUpdateTokenDailyData(
+    tokenB as Token,
+    block.timestamp
+  );
+  let tokenBWeeklyData = getAndUpdateTokenWeeklyData(
+    tokenB as Token,
+    block.timestamp
+  );
+  getAndUpdatePairDailyData(
+    pair as Pair,
+    token0Amount,
+    token1Amount,
+    block.timestamp
+  );
+  getAndUpdatePairWeeklyData(
+    pair as Pair,
+    token0Amount,
+    token1Amount,
+    block.timestamp
+  );
+
+  tokenADailyData.tradedVolume = tokenADailyData.tradedVolume.plus(
+    transaction.fillSA
+  );
+  tokenAWeeklyData.tradedVolume = tokenAWeeklyData.tradedVolume.plus(
+    transaction.fillSA
+  );
+  tokenBDailyData.tradedVolume = tokenBDailyData.tradedVolume.plus(
+    transaction.fillSB
+  );
+  tokenBWeeklyData.tradedVolume = tokenBWeeklyData.tradedVolume.plus(
+    transaction.fillSB
+  );
+
+  tokenADailyData.save();
+  tokenAWeeklyData.save();
+  tokenBDailyData.save();
+  tokenBWeeklyData.save();
   tokenA.save();
   tokenB.save();
   pair.save();

@@ -6,6 +6,10 @@ export {
   getOrCreateToken,
   getToken,
   getOrCreatePair,
+  getAndUpdateTokenDailyData,
+  getAndUpdateTokenWeeklyData,
+  getAndUpdatePairDailyData,
+  getAndUpdatePairWeeklyData,
   calculatePrice
 } from "./token";
 

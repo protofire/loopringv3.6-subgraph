@@ -461,3 +461,117 @@ type SignatureVerification implements Transaction @entity {
   "[RAW L2 DATA] Signature verification data"
   verificationData: String!
 }
+
+type PairDailyData @entity {
+  "The ID follows this pattern: <PAIR ID>-<DAY NUMBER>."
+  id: ID!
+
+  "Timestamp of the start of the day. Timezone -> UTC"
+  dayStart: BigInt!
+
+  "Timestamp of the end of the day. Timezone -> UTC"
+  dayEnd: BigInt!
+
+  "Day number is the amount of days since the start block of Loopring 3.6 (block 11149814)"
+  dayNumber: Int!
+
+  "Lowest price for token 0 during the time interval"
+  token0PriceLow: BigInt!
+
+  "Lowest price for token 1 during the time interval"
+  token1PriceLow: BigInt!
+
+  "Highest price for token 0 during the time interval"
+  token0PriceHigh: BigInt!
+
+  "Highest price for token 1 during the time interval"
+  token1PriceHigh: BigInt!
+
+  "Price for token 0 at the end of the time interval"
+  token0PriceClose: BigInt!
+
+  "Price for token 1 at the end of the time interval"
+  token1PriceClose: BigInt!
+
+  "Price for token 0 at the start of the time interval"
+  token0PriceOpen: BigInt!
+
+  "Price for token 1 at the start of the time interval"
+  token1PriceOpen: BigInt!
+
+  tradedVolumeToken0: BigInt!
+  tradedVolumeToken1: BigInt!
+}
+
+type TokenDailyData @entity {
+  "The ID follows this pattern: <TOKEN ID>-<DAY NUMBER>."
+  id: ID!
+
+  "Timestamp of the start of the day. Timezone -> UTC"
+  dayStart: BigInt!
+
+  "Timestamp of the end of the day. Timezone -> UTC"
+  dayEnd: BigInt!
+
+  "Day number is the amount of days since the start block of Loopring 3.6 (block 11149814)"
+  dayNumber: Int!
+
+  tradedVolume: BigInt!
+}
+
+type PairWeeklyData @entity {
+  "The ID follows this pattern: <PAIR ID>-<WEEK NUMBER>."
+  id: ID!
+
+  "Timestamp of the start of the week. Timezone -> UTC"
+  weekStart: BigInt!
+
+  "Timestamp of the end of the week. Timezone -> UTC"
+  weekEnd: BigInt!
+
+  "Week number is the amount of weeks since the start block of Loopring 3.6 (block 11149814)"
+  weekNumber: Int!
+
+  "Lowest price for token 0 during the time interval"
+  token0PriceLow: BigInt!
+
+  "Lowest price for token 1 during the time interval"
+  token1PriceLow: BigInt!
+
+  "Highest price for token 0 during the time interval"
+  token0PriceHigh: BigInt!
+
+  "Highest price for token 1 during the time interval"
+  token1PriceHigh: BigInt!
+
+  "Price for token 0 at the end of the time interval"
+  token0PriceClose: BigInt!
+
+  "Price for token 1 at the end of the time interval"
+  token1PriceClose: BigInt!
+
+  "Price for token 0 at the start of the time interval"
+  token0PriceOpen: BigInt!
+
+  "Price for token 1 at the start of the time interval"
+  token1PriceOpen: BigInt!
+
+  tradedVolumeToken0: BigInt!
+  tradedVolumeToken1: BigInt!
+}
+
+type TokenWeeklyData @entity {
+  "The ID follows this pattern: <TOKEN ID>-<WEEK NUMBER>."
+  id: ID!
+
+  "Timestamp of the start of the week. Timezone -> UTC"
+  weekStart: BigInt!
+
+  "Timestamp of the end of the week. Timezone -> UTC"
+  weekEnd: BigInt!
+
+  "Week number is the amount of weeks since the start block of Loopring 3.6 (block 11149814)"
+  weekNumber: Int!
+
+  tradedVolume: BigInt!
+}
