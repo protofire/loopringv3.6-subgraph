@@ -41,6 +41,9 @@ type Token @entity {
 
   "Total traded volume for this token across all token pairs. Denominated in it's own currency"
   tradedVolume: BigInt!
+
+  dailyEntities: [TokenDailyData!]! @derivedFrom(field: "token")
+  weeklyEntities: [TokenWeeklyData!]! @derivedFrom(field: "token")
 }
 
 type Pair @entity {
@@ -64,6 +67,9 @@ type Pair @entity {
   tradedVolumeToken1: BigInt!
 
   trades: [SpotTrade!]! @derivedFrom(field: "pair")
+
+  dailyEntities: [PairDailyData!]! @derivedFrom(field: "pair")
+  weeklyEntities: [PairWeeklyData!]! @derivedFrom(field: "pair")
 }
 
 type Block @entity {
@@ -466,6 +472,8 @@ type PairDailyData @entity {
   "The ID follows this pattern: <PAIR ID>-<DAY NUMBER>."
   id: ID!
 
+  pair: Pair!
+
   "Timestamp of the start of the day. Timezone -> UTC"
   dayStart: BigInt!
 
@@ -507,6 +515,8 @@ type TokenDailyData @entity {
   "The ID follows this pattern: <TOKEN ID>-<DAY NUMBER>."
   id: ID!
 
+  token: Token!
+
   "Timestamp of the start of the day. Timezone -> UTC"
   dayStart: BigInt!
 
@@ -522,6 +532,8 @@ type TokenDailyData @entity {
 type PairWeeklyData @entity {
   "The ID follows this pattern: <PAIR ID>-<WEEK NUMBER>."
   id: ID!
+
+  pair: Pair!
 
   "Timestamp of the start of the week. Timezone -> UTC"
   weekStart: BigInt!
@@ -563,6 +575,8 @@ type PairWeeklyData @entity {
 type TokenWeeklyData @entity {
   "The ID follows this pattern: <TOKEN ID>-<WEEK NUMBER>."
   id: ID!
+
+  token: Token!
 
   "Timestamp of the start of the week. Timezone -> UTC"
   weekStart: BigInt!

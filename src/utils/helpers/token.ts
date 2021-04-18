@@ -130,6 +130,7 @@ export function getAndUpdateTokenDailyData(
     dailyData.dayEnd = dailyData.dayStart + BigInt.fromI32(SECONDS_PER_DAY);
     dailyData.dayNumber = dayId;
     dailyData.tradedVolume = BIGINT_ZERO;
+    dailyData.token = entity.id;
   }
 
   return dailyData as TokenDailyData;
@@ -150,9 +151,10 @@ export function getAndUpdateTokenWeeklyData(
     weeklyData.weekStart = BigInt.fromI32(
       ((timestamp.toI32() - WEEK_OFFSET) / SECONDS_PER_WEEK) * SECONDS_PER_WEEK
     );
-    weeklyData.weekEnd = weeklyData.weekEnd + BigInt.fromI32(SECONDS_PER_WEEK);
+    weeklyData.weekEnd = weeklyData.weekStart + BigInt.fromI32(SECONDS_PER_WEEK);
     weeklyData.weekNumber = weekId;
     weeklyData.tradedVolume = BIGINT_ZERO;
+    weeklyData.token = entity.id;
   }
 
   return weeklyData as TokenWeeklyData;
@@ -176,6 +178,9 @@ export function getAndUpdatePairDailyData(
     );
     dailyData.dayEnd = dailyData.dayStart + BigInt.fromI32(SECONDS_PER_DAY);
     dailyData.dayNumber = dayId;
+
+    dailyData.pair = entity.id;
+
     dailyData.tradedVolumeToken0 = BIGINT_ZERO;
     dailyData.tradedVolumeToken1 = BIGINT_ZERO;
 
@@ -236,8 +241,11 @@ export function getAndUpdatePairWeeklyData(
     weeklyData.weekStart = BigInt.fromI32(
       ((timestamp.toI32() - WEEK_OFFSET) / SECONDS_PER_WEEK) * SECONDS_PER_WEEK
     );
-    weeklyData.weekEnd = weeklyData.weekEnd + BigInt.fromI32(SECONDS_PER_WEEK);
+    weeklyData.weekEnd = weeklyData.weekStart + BigInt.fromI32(SECONDS_PER_WEEK);
     weeklyData.weekNumber = weekId;
+
+    weeklyData.pair = entity.id;
+
     weeklyData.tradedVolumeToken0 = BIGINT_ZERO;
     weeklyData.tradedVolumeToken1 = BIGINT_ZERO;
 
