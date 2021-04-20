@@ -140,8 +140,7 @@ export function getAndUpdateTokenWeeklyData(
   entity: Token,
   timestamp: BigInt
 ): TokenWeeklyData {
-  let weekId =
-    (timestamp.toI32() - WEEK_OFFSET) / SECONDS_PER_WEEK - LAUNCH_WEEK;
+  let weekId = timestamp.toI32() / SECONDS_PER_WEEK - LAUNCH_WEEK;
   let id = compoundId(entity.id, BigInt.fromI32(weekId).toString());
   let weeklyData = TokenWeeklyData.load(id);
 
@@ -149,9 +148,10 @@ export function getAndUpdateTokenWeeklyData(
     weeklyData = new TokenWeeklyData(id);
 
     weeklyData.weekStart = BigInt.fromI32(
-      ((timestamp.toI32() - WEEK_OFFSET) / SECONDS_PER_WEEK) * SECONDS_PER_WEEK
+      (timestamp.toI32() / SECONDS_PER_WEEK) * SECONDS_PER_WEEK - WEEK_OFFSET
     );
-    weeklyData.weekEnd = weeklyData.weekStart + BigInt.fromI32(SECONDS_PER_WEEK);
+    weeklyData.weekEnd =
+      weeklyData.weekStart + BigInt.fromI32(SECONDS_PER_WEEK);
     weeklyData.weekNumber = weekId;
     weeklyData.tradedVolume = BIGINT_ZERO;
     weeklyData.token = entity.id;
@@ -230,8 +230,7 @@ export function getAndUpdatePairWeeklyData(
   tradedVolumeToken1: BigInt,
   timestamp: BigInt
 ): PairWeeklyData {
-  let weekId =
-    (timestamp.toI32() - WEEK_OFFSET) / SECONDS_PER_WEEK - LAUNCH_WEEK;
+  let weekId = timestamp.toI32() / SECONDS_PER_WEEK - LAUNCH_WEEK;
   let id = compoundId(entity.id, BigInt.fromI32(weekId).toString());
   let weeklyData = PairWeeklyData.load(id);
 
@@ -239,9 +238,10 @@ export function getAndUpdatePairWeeklyData(
     weeklyData = new PairWeeklyData(id);
 
     weeklyData.weekStart = BigInt.fromI32(
-      ((timestamp.toI32() - WEEK_OFFSET) / SECONDS_PER_WEEK) * SECONDS_PER_WEEK
+      (timestamp.toI32() / SECONDS_PER_WEEK) * SECONDS_PER_WEEK - WEEK_OFFSET
     );
-    weeklyData.weekEnd = weeklyData.weekStart + BigInt.fromI32(SECONDS_PER_WEEK);
+    weeklyData.weekEnd =
+      weeklyData.weekStart + BigInt.fromI32(SECONDS_PER_WEEK);
     weeklyData.weekNumber = weekId;
 
     weeklyData.pair = entity.id;
