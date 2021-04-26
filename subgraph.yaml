@@ -24,6 +24,10 @@ dataSources:
         - User
         - Pool
         - ProtocolAccount
+        - Deposit
+        - Withdrawal
+        - Transfer
+        - SpotTrade
       abis:
         - name: OwnedUpgradabilityProxy
           file: ./abis/OwnedUpgradabilityProxy.json
