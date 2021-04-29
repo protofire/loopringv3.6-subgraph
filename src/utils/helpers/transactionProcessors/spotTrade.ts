@@ -280,15 +280,15 @@ export function processSpotTrade(id: String, data: String, block: Block): void {
 
   // Further extraction of packed data
   transaction.limitMaskA =
-    BigInt.fromI32(transaction.orderDataA) & stringBytesToBigInt("0b10000000");
+    BigInt.fromI32(transaction.orderDataA) & stringBytesToBigInt("80");
   transaction.feeBipsA =
-    BigInt.fromI32(transaction.orderDataA) & stringBytesToBigInt("0b00111111");
+    BigInt.fromI32(transaction.orderDataA) & stringBytesToBigInt("3F");
   transaction.fillAmountBorSA = transaction.limitMaskA > BIGINT_ZERO;
 
   transaction.limitMaskB =
-    BigInt.fromI32(transaction.orderDataB) & stringBytesToBigInt("0b10000000");
+    BigInt.fromI32(transaction.orderDataB) & stringBytesToBigInt("80");
   transaction.feeBipsB =
-    BigInt.fromI32(transaction.orderDataB) & stringBytesToBigInt("0b00111111");
+    BigInt.fromI32(transaction.orderDataB) & stringBytesToBigInt("3F");
   transaction.fillAmountBorSB = transaction.limitMaskB > BIGINT_ZERO;
 
   // settlement values
