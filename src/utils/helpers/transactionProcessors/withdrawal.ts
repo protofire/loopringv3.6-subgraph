@@ -126,18 +126,31 @@ export function processWithdrawal(
 
   let token = getToken(intToString(transaction.tokenID)) as Token;
   let feeToken = getToken(intToString(transaction.feeTokenID)) as Token;
-
-  let accountTokenBalance = getOrCreateAccountTokenBalance(accountId, token.id);
-  accountTokenBalance.balance = accountTokenBalance.balance.minus(
-    transaction.amount
-  );
-
-  let accountTokenFeeBalance = getOrCreateAccountTokenBalance(accountId, feeToken.id);
-  accountTokenFeeBalance.balance = accountTokenFeeBalance.balance.minus(
-    transaction.fee
-  );
-
+  
   createIfNewAccount(transaction.fromAccountID, transaction.id, transaction.from);
+
+  // Make sure we don't overwrite balance entities
+  if(token.id == feeToken.id) {
+    let accountTokenBalance = getOrCreateAccountTokenBalance(accountId, token.id);
+    accountTokenBalance.balance = accountTokenBalance.balance.minus(
+      transaction.amount.minus(transaction.fee)
+    );
+
+    accountTokenBalance.save();
+  } else {
+    let accountTokenBalance = getOrCreateAccountTokenBalance(accountId, token.id);
+    accountTokenBalance.balance = accountTokenBalance.balance.minus(
+      transaction.amount
+    );
+
+    let accountTokenFeeBalance = getOrCreateAccountTokenBalance(accountId, feeToken.id);
+    accountTokenFeeBalance.balance = accountTokenFeeBalance.balance.minus(
+      transaction.fee
+    );
+
+    accountTokenFeeBalance.save();
+    accountTokenBalance.save();
+  }
 
   let operatorTokenFeeBalance = getOrCreateAccountTokenBalance(
     intToString(block.operatorAccountID),
@@ -151,8 +164,6 @@ export function processWithdrawal(
   transaction.token = token.id;
   transaction.feeToken = feeToken.id;
 
-  accountTokenFeeBalance.save();
-  accountTokenBalance.save();
   operatorTokenFeeBalance.save();
   transaction.save();
 }

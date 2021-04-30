@@ -125,6 +125,7 @@ export function processAccountUpdate(
   accountTokenFeeBalance.balance = accountTokenFeeBalance.balance.minus(
     transaction.fee
   );
+  accountTokenFeeBalance.save();
 
   let operatorTokenFeeBalance = getOrCreateAccountTokenBalance(
     intToString(block.operatorAccountID),
@@ -133,12 +134,11 @@ export function processAccountUpdate(
   operatorTokenFeeBalance.balance = operatorTokenFeeBalance.balance.plus(
     transaction.fee
   );
+  operatorTokenFeeBalance.save();
 
   transaction.user = user.id;
   transaction.feeToken = feeToken.id;
 
   user.save();
-  accountTokenFeeBalance.save();
-  operatorTokenFeeBalance.save();
   transaction.save();
 }

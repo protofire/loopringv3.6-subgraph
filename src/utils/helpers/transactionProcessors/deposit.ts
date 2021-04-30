@@ -79,12 +79,12 @@ export function processDeposit(id: String, data: String, block: Block): void {
 
   let token = getToken(intToString(transaction.tokenID)) as Token;
 
+  createIfNewAccount(transaction.toAccountID, transaction.id, transaction.to);
+
   let accountTokenBalance = getOrCreateAccountTokenBalance(accountId, token.id);
   accountTokenBalance.balance = accountTokenBalance.balance.plus(
     transaction.amount
   );
-
-  createIfNewAccount(transaction.toAccountID, transaction.id, transaction.to);
 
   transaction.toAccount = accountId;
   transaction.token = token.id;

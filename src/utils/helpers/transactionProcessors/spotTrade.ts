@@ -315,6 +315,7 @@ export function processSpotTrade(id: String, data: String, block: Block): void {
   accountTokenBalanceAA.balance = accountTokenBalanceAA.balance.minus(
     transaction.fillSA
   );
+  accountTokenBalanceAA.save();
 
   let accountTokenBalanceAB = getOrCreateAccountTokenBalance(
     accountAID,
@@ -323,6 +324,7 @@ export function processSpotTrade(id: String, data: String, block: Block): void {
   accountTokenBalanceAB.balance = accountTokenBalanceAB.balance
     .plus(transaction.fillBA)
     .minus(transaction.feeA);
+  accountTokenBalanceAB.save()
 
   // Update token balances for account B
   let accountTokenBalanceBB = getOrCreateAccountTokenBalance(
@@ -332,6 +334,7 @@ export function processSpotTrade(id: String, data: String, block: Block): void {
   accountTokenBalanceBB.balance = accountTokenBalanceBB.balance.minus(
     transaction.fillSB
   );
+  accountTokenBalanceBB.save()
 
   let accountTokenBalanceBA = getOrCreateAccountTokenBalance(
     accountBID,
@@ -340,6 +343,7 @@ export function processSpotTrade(id: String, data: String, block: Block): void {
   accountTokenBalanceBA.balance = accountTokenBalanceBA.balance
     .plus(transaction.fillBB)
     .minus(transaction.feeB);
+  accountTokenBalanceBA.save()
 
   // Should also update operator account balance
   let operatorId = intToString(block.operatorAccountID);
@@ -351,6 +355,7 @@ export function processSpotTrade(id: String, data: String, block: Block): void {
   operatorTokenBalanceA.balance = operatorTokenBalanceA.balance
     .plus(transaction.feeB)
     .minus(transaction.protocolFeeB);
+  operatorTokenBalanceA.save()
 
   let operatorTokenBalanceB = getOrCreateAccountTokenBalance(
     operatorId,
@@ -359,6 +364,7 @@ export function processSpotTrade(id: String, data: String, block: Block): void {
   operatorTokenBalanceB.balance = operatorTokenBalanceB.balance
     .plus(transaction.feeA)
     .minus(transaction.protocolFeeA);
+  operatorTokenBalanceB.save()
 
   // update protocol balance
   let protocolAccount = getProtocolAccount(transaction.id);
@@ -370,6 +376,7 @@ export function processSpotTrade(id: String, data: String, block: Block): void {
   protocolTokenBalanceA.balance = protocolTokenBalanceA.balance.plus(
     transaction.protocolFeeB
   );
+  protocolTokenBalanceA.save();
 
   let protocolTokenBalanceB = getOrCreateAccountTokenBalance(
     protocolAccount.id,
@@ -378,6 +385,7 @@ export function processSpotTrade(id: String, data: String, block: Block): void {
   protocolTokenBalanceB.balance = protocolTokenBalanceB.balance.plus(
     transaction.protocolFeeA
   );
+  protocolTokenBalanceB.save()
 
   // Update pair info
   transaction.tokenAPrice = calculatePrice(
@@ -470,14 +478,6 @@ export function processSpotTrade(id: String, data: String, block: Block): void {
   tokenB.save();
   pair.save();
   protocolAccount.save();
-  protocolTokenBalanceA.save();
-  protocolTokenBalanceB.save();
-  operatorTokenBalanceA.save();
-  operatorTokenBalanceB.save();
-  accountTokenBalanceAA.save();
-  accountTokenBalanceAB.save();
-  accountTokenBalanceBA.save();
-  accountTokenBalanceBB.save();
   transaction.save();
 }
 

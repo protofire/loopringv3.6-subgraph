@@ -140,15 +140,43 @@ export function processTransfer(id: String, data: String, block: Block): void {
 
   let token = getToken(intToString(transaction.tokenID)) as Token;
   let feeToken = getToken(intToString(transaction.feeTokenID)) as Token;
+  
+  createIfNewAccount(transaction.accountFromID, transaction.id, transaction.from);
+  createIfNewAccount(transaction.accountToID, transaction.id, transaction.to);
 
   // Token transfer balance calculations
-  let fromAccountTokenBalance = getOrCreateAccountTokenBalance(
-    fromAccountId,
-    token.id
-  );
-  fromAccountTokenBalance.balance = fromAccountTokenBalance.balance.minus(
-    transaction.amount
-  );
+  // Avoid overwriting balance entities
+  if(token.id == feeToken.id) {
+    let fromAccountTokenBalance = getOrCreateAccountTokenBalance(
+      fromAccountId,
+      token.id
+    );
+    fromAccountTokenBalance.balance = fromAccountTokenBalance.balance.minus(
+      transaction.amount.minus(transaction.fee)
+    );
+
+    fromAccountTokenBalance.save();
+  } else {
+    let fromAccountTokenBalance = getOrCreateAccountTokenBalance(
+      fromAccountId,
+      token.id
+    );
+    fromAccountTokenBalance.balance = fromAccountTokenBalance.balance.minus(
+      transaction.amount
+    );
+
+    // Fee token balance calculation
+    let fromAccountTokenFeeBalance = getOrCreateAccountTokenBalance(
+      fromAccountId,
+      feeToken.id
+    );
+    fromAccountTokenBalance.balance = fromAccountTokenBalance.balance.minus(
+      transaction.fee
+    );
+
+    fromAccountTokenBalance.save();
+    fromAccountTokenFeeBalance.save();
+  }
 
   let toAccountTokenBalance = getOrCreateAccountTokenBalance(
     toAccountId,
@@ -157,15 +185,7 @@ export function processTransfer(id: String, data: String, block: Block): void {
   toAccountTokenBalance.balance = toAccountTokenBalance.balance.plus(
     transaction.amount
   );
-
-  // Fee token balance calculation
-  let fromAccountTokenFeeBalance = getOrCreateAccountTokenBalance(
-    fromAccountId,
-    feeToken.id
-  );
-  fromAccountTokenBalance.balance = fromAccountTokenBalance.balance.minus(
-    transaction.fee
-  );
+  toAccountTokenBalance.save();
 
   // Operator update
   let operatorTokenFeeBalance = getOrCreateAccountTokenBalance(
@@ -176,17 +196,11 @@ export function processTransfer(id: String, data: String, block: Block): void {
     transaction.fee
   );
 
-  createIfNewAccount(transaction.accountFromID, transaction.id, transaction.from);
-  createIfNewAccount(transaction.accountToID, transaction.id, transaction.to);
-
   transaction.toAccount = toAccountId;
   transaction.fromAccount = fromAccountId;
   transaction.token = token.id;
   transaction.feeToken = feeToken.id;
 
   operatorTokenFeeBalance.save();
-  fromAccountTokenBalance.save();
-  toAccountTokenBalance.save();
-  fromAccountTokenFeeBalance.save();
   transaction.save();
 }
