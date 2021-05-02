@@ -195,6 +195,8 @@ type AccountTokenBalance @entity {
 
   "Link to the Token entity. Holds all details of the token itself."
   token: Token!
+
+  transactions: [Transaction!]! @derivedFrom(field:"tokenBalances")
 }
 
 interface Transaction {
@@ -206,6 +208,9 @@ interface Transaction {
 
   "Link to the Block entity where this Transaction took place"
   block: Block!
+
+
+  tokenBalances: [AccountTokenBalance!]
 }
 
 type Deposit implements Transaction @entity {
@@ -230,6 +235,8 @@ type Deposit implements Transaction @entity {
   tokenID: Int!
   "[RAW L2 DATA] Amount deposited"
   amount: BigInt!
+
+  tokenBalances: [AccountTokenBalance!]
 }
 
 type Withdrawal implements Transaction @entity {
@@ -267,6 +274,8 @@ type Withdrawal implements Transaction @entity {
   onchainDataHash: String!
   "[RAW L2 DATA] StorageID"
   storageID: Int!
+
+  tokenBalances: [AccountTokenBalance!]
 }
 
 type Transfer implements Transaction @entity {
@@ -309,6 +318,8 @@ type Transfer implements Transaction @entity {
   from: String!
   "[RAW L2 DATA] Address string of the account that received the tokens"
   to: String!
+
+  tokenBalances: [AccountTokenBalance!]
 }
 
 type SpotTrade implements Transaction @entity {
@@ -395,6 +406,8 @@ type SpotTrade implements Transaction @entity {
   feeB: BigInt!
   "[RAW L2 DATA] Protocol fees paid by Account B"
   protocolFeeB: BigInt!
+
+  tokenBalances: [AccountTokenBalance!]
 }
 
 type AccountUpdate implements Transaction @entity {
@@ -425,6 +438,8 @@ type AccountUpdate implements Transaction @entity {
   publicKey: String!
   "[RAW L2 DATA] Nonce"
   nonce: Int!
+
+  tokenBalances: [AccountTokenBalance!]
 }
 
 type AmmUpdate implements Transaction @entity {
@@ -447,6 +462,8 @@ type AmmUpdate implements Transaction @entity {
   tokenWeight: BigInt!
   nonce: Int!
   balance: BigInt!
+
+  tokenBalances: [AccountTokenBalance!]
 }
 
 type SignatureVerification implements Transaction @entity {
@@ -466,6 +483,8 @@ type SignatureVerification implements Transaction @entity {
   accountID: Int!
   "[RAW L2 DATA] Signature verification data"
   verificationData: String!
+
+  tokenBalances: [AccountTokenBalance!]
 }
 
 type PairDailyData @entity {

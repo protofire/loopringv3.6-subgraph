@@ -140,9 +140,11 @@ export function processTransfer(id: String, data: String, block: Block): void {
 
   let token = getToken(intToString(transaction.tokenID)) as Token;
   let feeToken = getToken(intToString(transaction.feeTokenID)) as Token;
-  
+
   createIfNewAccount(transaction.accountFromID, transaction.id, transaction.from);
   createIfNewAccount(transaction.accountToID, transaction.id, transaction.to);
+
+  let tokenBalances = new Array<String>()
 
   // Token transfer balance calculations
   // Avoid overwriting balance entities
@@ -156,6 +158,7 @@ export function processTransfer(id: String, data: String, block: Block): void {
     );
 
     fromAccountTokenBalance.save();
+    tokenBalances.push(fromAccountTokenBalance.id);
   } else {
     let fromAccountTokenBalance = getOrCreateAccountTokenBalance(
       fromAccountId,
@@ -164,18 +167,20 @@ export function processTransfer(id: String, data: String, block: Block): void {
     fromAccountTokenBalance.balance = fromAccountTokenBalance.balance.minus(
       transaction.amount
     );
+    fromAccountTokenBalance.save();
 
     // Fee token balance calculation
     let fromAccountTokenFeeBalance = getOrCreateAccountTokenBalance(
       fromAccountId,
       feeToken.id
     );
-    fromAccountTokenBalance.balance = fromAccountTokenBalance.balance.minus(
+    fromAccountTokenFeeBalance.balance = fromAccountTokenFeeBalance.balance.minus(
       transaction.fee
     );
 
-    fromAccountTokenBalance.save();
     fromAccountTokenFeeBalance.save();
+    tokenBalances.push(fromAccountTokenBalance.id);
+    tokenBalances.push(fromAccountTokenFeeBalance.id);
   }
 
   let toAccountTokenBalance = getOrCreateAccountTokenBalance(
@@ -186,6 +191,7 @@ export function processTransfer(id: String, data: String, block: Block): void {
     transaction.amount
   );
   toAccountTokenBalance.save();
+  tokenBalances.push(toAccountTokenBalance.id);
 
   // Operator update
   let operatorTokenFeeBalance = getOrCreateAccountTokenBalance(
@@ -195,11 +201,13 @@ export function processTransfer(id: String, data: String, block: Block): void {
   operatorTokenFeeBalance.balance = operatorTokenFeeBalance.balance.plus(
     transaction.fee
   );
+  tokenBalances.push(operatorTokenFeeBalance.id);
 
   transaction.toAccount = toAccountId;
   transaction.fromAccount = fromAccountId;
   transaction.token = token.id;
   transaction.feeToken = feeToken.id;
+  transaction.tokenBalances = tokenBalances;
 
   operatorTokenFeeBalance.save();
   transaction.save();

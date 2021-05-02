@@ -29,6 +29,7 @@ dataSources:
         - Transfer
         - SpotTrade
         - SignatureVerification
+        - AccountUpdate
         - AmmUpdate
       abis:
         - name: OwnedUpgradabilityProxy

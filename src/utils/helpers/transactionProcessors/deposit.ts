@@ -78,6 +78,7 @@ export function processDeposit(id: String, data: String, block: Block): void {
   let accountId = intToString(transaction.toAccountID);
 
   let token = getToken(intToString(transaction.tokenID)) as Token;
+  let tokenBalances = new Array<String>();
 
   createIfNewAccount(transaction.toAccountID, transaction.id, transaction.to);
 
@@ -86,8 +87,11 @@ export function processDeposit(id: String, data: String, block: Block): void {
     transaction.amount
   );
 
+  tokenBalances.push(accountTokenBalance.id);
+
   transaction.toAccount = accountId;
   transaction.token = token.id;
+  transaction.tokenBalances = tokenBalances;
 
   accountTokenBalance.save();
   transaction.save();
