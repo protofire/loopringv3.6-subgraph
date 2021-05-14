@@ -3,6 +3,7 @@ import {
   TokenRegistered,
   SubmitBlocksCall,
   SubmitBlocks1Call,
+  SubmitBlocks2Call,
   SubmitBlocksCallBlocksStruct
 } from "../../generated/OwnedUpgradabilityProxy/OwnedUpgradabilityProxy";
 import { Block } from "../../generated/schema";
@@ -31,6 +32,10 @@ export function handleSubmitBlocksV1(call: SubmitBlocksCall): void {
 }
 
 export function handleSubmitBlocksV2(call: SubmitBlocks1Call): void {
+  handleSubmitBlocks(call as ethereum.Call, call.inputs.blocks as Array<SubmitBlocksCallBlocksStruct>);
+}
+
+export function handleSubmitBlocksV3(call: SubmitBlocks2Call): void {
   handleSubmitBlocks(call as ethereum.Call, call.inputs.blocks as Array<SubmitBlocksCallBlocksStruct>);
 }
 

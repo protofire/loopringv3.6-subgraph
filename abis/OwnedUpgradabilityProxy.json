@@ -1494,6 +1494,61 @@
   {
     "inputs": [
       {
+        "components": [
+          {
+            "internalType": "uint8",
+            "name": "blockType",
+            "type": "uint8"
+          },
+          {
+            "internalType": "uint16",
+            "name": "blockSize",
+            "type": "uint16"
+          },
+          {
+            "internalType": "uint8",
+            "name": "blockVersion",
+            "type": "uint8"
+          },
+          {
+            "internalType": "bytes",
+            "name": "data",
+            "type": "bytes"
+          },
+          {
+            "internalType": "uint256[8]",
+            "name": "proof",
+            "type": "uint256[8]"
+          },
+          {
+            "internalType": "bool",
+            "name": "storeBlockInfoOnchain",
+            "type": "bool"
+          },
+          {
+            "internalType": "bytes",
+            "name": "auxiliaryData",
+            "type": "bytes"
+          },
+          {
+            "internalType": "bytes",
+            "name": "offchainData",
+            "type": "bytes"
+          }
+        ],
+        "internalType": "struct ExchangeData.Block[]",
+        "name": "blocks",
+        "type": "tuple[]"
+      }
+    ],
+    "name": "submitBlocks",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
         "internalType": "address",
         "name": "newOwner",
         "type": "address"
